@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>FinancialFreedom.Server-7A2B9C4D-8E1F-4A6B-9C0D-1E2F3A4B5C6D</UserSecretsId>
+    <RootNamespace>FinancialFreedom.Server</RootNamespace>
+    <AssemblyName>FinancialFreedom.Server</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FinancialFreedom.UnitTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Client\FinancialFreedom.Client.csproj" />
+    <ProjectReference Include="..\FinancialFreedom.Business\FinancialFreedom.Business.csproj" />
+    <ProjectReference Include="..\Shared\FinancialFreedom.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

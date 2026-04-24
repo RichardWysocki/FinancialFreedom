@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>FinancialFreedom.Business</RootNamespace>
+    <AssemblyName>FinancialFreedom.Business</AssemblyName>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,27 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore FinancialFreedom.sln
+
+      - name: Build
+        run: dotnet build FinancialFreedom.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test FinancialFreedom.sln --configuration Release --no-build --verbosity normal

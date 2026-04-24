@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <!-- net9: VS F5 on hosted Blazor WASM hits a WASM debugger regression on .NET 10 SDK 10.0.2+ (see dotnet/runtime#123659). Revert to net10 when fixed. -->
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
