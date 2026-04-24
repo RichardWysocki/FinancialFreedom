@@ -1,6 +1,6 @@
 /*
   Reference / seed data scripts for the FinancialFreedom initiative.
-  Wire into PostDeployment\Script.PostDeployment.sql with :r when ready to run on publish.
+  Wire into Post-Deployment\Script.PostDeployment.sql with :r when ready to run on publish.
 */
 
 -- Example (disabled):
