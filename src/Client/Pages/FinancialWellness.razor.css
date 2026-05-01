@@ -1,0 +1,27 @@
+.wellness-page {
+    max-width: 1200px;
+}
+
+.wellness-layout {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+    align-items: start;
+}
+
+@media (min-width: 992px) {
+    .wellness-layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+    }
+}
+
+.wellness-toc {
+    position: sticky;
+    top: 0.5rem;
+    z-index: 1;
+}
+
+.wellness-toc .list-group-item {
+    font-size: 0.9rem;
+    padding: 0.45rem 0.75rem;
+}

@@ -1,0 +1,156 @@
+@page "/future-salary"
+@using System.Globalization
+
+<PageTitle>Future salary calculator</PageTitle>
+
+<div class="future-salary-page">
+    <h1 class="mb-2">Future salary calculator</h1>
+    <p class="text-muted mb-4">
+        Enter your current age and the age you plan to retire. The table runs from your current age through retirement age, with one row per year.
+        Calendar year is shown for reference (assuming this calendar year matches your current age row).
+    </p>
+
+    <EditForm Model="_model" OnValidSubmit="BuildTable">
+        <div class="row g-3 mb-2">
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label" for="currentAge">Current age</label>
+                <InputNumber id="currentAge" class="form-control" @bind-Value="_model.CurrentAge" />
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label" for="retirementAge">Retirement age</label>
+                <InputNumber id="retirementAge" class="form-control" @bind-Value="_model.RetirementAge" />
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label class="form-label" for="salary">Current annual salary</label>
+                <InputNumber id="salary" class="form-control" @bind-Value="_model.CurrentSalary" />
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label class="form-label" for="increasePct">Salary increase per year (%)</label>
+                <InputNumber id="increasePct" class="form-control" @bind-Value="_model.AnnualIncreasePercent" step="0.1" />
+            </div>
+        </div>
+        @if (_model.RetirementAge > _model.CurrentAge)
+        {
+            <p class="small text-muted mb-3">
+                Estimated calendar year at retirement:
+                <strong>@(DateTime.Today.Year + (_model.RetirementAge - _model.CurrentAge))</strong>
+                (this year + years until you reach retirement age).
+            </p>
+        }
+        <button type="submit" class="btn btn-primary">Build table</button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(_formError))
+    {
+        <div class="alert alert-warning mt-3" role="alert">@_formError</div>
+    }
+
+    @if (_rows.Count > 0)
+    {
+        <div class="table-responsive mt-4">
+            <table class="table table-striped table-bordered align-middle">
+                <caption class="caption-top">
+                    Salary projection by age (@_rows.Count rows, ages @_model.CurrentAge–@_model.RetirementAge;
+                    calendar years @_startYear–@_endYear for reference)
+                </caption>
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Age</th>
+                        <th scope="col">Calendar year <span class="text-muted fw-normal">(estimated)</span></th>
+                        <th scope="col" class="text-end">Projected salary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in _rows)
+                    {
+                        <tr>
+                            <td>@row.Age</td>
+                            <td>@row.CalendarYear</td>
+                            <td class="text-end font-monospace">@FormatMoney(row.Salary)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly FutureSalaryForm _model = new();
+    private readonly List<SalaryProjectionRow> _rows = [];
+    private string? _formError;
+    private int _startYear;
+    private int _endYear;
+
+    private void BuildTable()
+    {
+        _formError = null;
+        _rows.Clear();
+
+        _startYear = DateTime.Today.Year;
+
+        if (_model.CurrentAge < 0 || _model.CurrentAge > 120)
+        {
+            _formError = "Enter a realistic current age.";
+            return;
+        }
+
+        if (_model.RetirementAge <= _model.CurrentAge)
+        {
+            _formError = "Retirement age must be greater than current age.";
+            return;
+        }
+
+        var yearsSpan = _model.RetirementAge - _model.CurrentAge;
+        const int maxSpanYears = 80;
+        if (yearsSpan > maxSpanYears)
+        {
+            _formError = $"Projection is limited to {maxSpanYears} years. Choose a nearer retirement age.";
+            return;
+        }
+
+        if (_model.CurrentSalary <= 0)
+        {
+            _formError = "Salary must be greater than zero.";
+            return;
+        }
+
+        if (_model.AnnualIncreasePercent < 0 || _model.AnnualIncreasePercent > 100)
+        {
+            _formError = "Annual increase should be between 0% and 100%.";
+            return;
+        }
+
+        _endYear = _startYear + yearsSpan;
+        var factor = 1m + _model.AnnualIncreasePercent / 100m;
+
+        for (var n = 0; n <= yearsSpan; n++)
+        {
+            var age = _model.CurrentAge + n;
+            var calendarYear = _startYear + n;
+            var salary = _model.CurrentSalary * PowDecimal(factor, n);
+            _rows.Add(new SalaryProjectionRow(age, calendarYear, salary));
+        }
+    }
+
+    private static decimal PowDecimal(decimal bas, int exp)
+    {
+        if (exp <= 0) return 1m;
+        var r = 1m;
+        for (var i = 0; i < exp; i++) r *= bas;
+        return r;
+    }
+
+    private static string FormatMoney(decimal value) =>
+        value.ToString("C0", CultureInfo.CurrentCulture);
+
+    private sealed record SalaryProjectionRow(int Age, int CalendarYear, decimal Salary);
+
+    private sealed class FutureSalaryForm
+    {
+        public int CurrentAge { get; set; } = 35;
+        public int RetirementAge { get; set; } = 65;
+        public decimal CurrentSalary { get; set; } = 100_000m;
+        public decimal AnnualIncreasePercent { get; set; } = 3m;
+    }
+}
