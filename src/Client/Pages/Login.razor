@@ -1,0 +1,57 @@
+@page "/login"
+@layout MainLayout
+@using FinancialFreedom.Client.Identity
+@inject IAccountManagement Account
+@inject NavigationManager Navigation
+
+<PageTitle>Log in</PageTitle>
+
+<h1>Log in</h1>
+
+<EditForm Model="_model" OnValidSubmit="Submit">
+    <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="_model.Email" autocomplete="username" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" autocomplete="current-password" />
+    </div>
+    @if (_error is not null)
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+    <button type="submit" class="btn btn-primary" disabled="@_busy">@(_busy ? "Signing in…" : "Sign in")</button>
+</EditForm>
+
+<p class="mt-3"><a href="register">Create an account</a></p>
+
+@code {
+    private readonly LoginModel _model = new();
+    private string? _error;
+    private bool _busy;
+
+    private async Task Submit()
+    {
+        _error = null;
+        _busy = true;
+        try
+        {
+            var result = await Account.LoginAsync(_model.Email.Trim(), _model.Password);
+            if (result.Succeeded)
+                Navigation.NavigateTo("", forceLoad: true);
+            else
+                _error = string.Join(" ", result.ErrorList);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private sealed class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

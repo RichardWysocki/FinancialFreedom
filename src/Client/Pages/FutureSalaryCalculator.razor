@@ -1,5 +1,8 @@
 @page "/future-salary"
 @using System.Globalization
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
 
 <PageTitle>Future salary calculator</PageTitle>
 
@@ -37,7 +40,16 @@
                 (this year + years until you reach retirement age).
             </p>
         }
-        <button type="submit" class="btn btn-primary">Build table</button>
+        <button type="submit" class="btn btn-primary" disabled="@_loading">
+            @if (_loading)
+            {
+                <text>Building…</text>
+            }
+            else
+            {
+                <text>Build table</text>
+            }
+        </button>
     </EditForm>
 
     @if (!string.IsNullOrEmpty(_formError))
@@ -76,81 +88,67 @@
 </div>
 
 @code {
-    private readonly FutureSalaryForm _model = new();
-    private readonly List<SalaryProjectionRow> _rows = [];
+    private readonly FutureSalaryProjectionRequest _model = new()
+    {
+        CurrentAge = 35,
+        RetirementAge = 65,
+        CurrentSalary = 100_000m,
+        AnnualIncreasePercent = 3m,
+    };
+
+    private readonly List<FutureSalaryProjectionRow> _rows = [];
     private string? _formError;
     private int _startYear;
     private int _endYear;
+    private bool _loading;
 
-    private void BuildTable()
+    private async Task BuildTable()
     {
         _formError = null;
         _rows.Clear();
-
-        _startYear = DateTime.Today.Year;
-
-        if (_model.CurrentAge < 0 || _model.CurrentAge > 120)
+        _loading = true;
+        try
         {
-            _formError = "Enter a realistic current age.";
-            return;
-        }
+            var body = new FutureSalaryProjectionRequest
+            {
+                CurrentAge = _model.CurrentAge,
+                RetirementAge = _model.RetirementAge,
+                CurrentSalary = _model.CurrentSalary,
+                AnnualIncreasePercent = _model.AnnualIncreasePercent,
+                CalendarStartYear = DateTime.Today.Year,
+            };
 
-        if (_model.RetirementAge <= _model.CurrentAge)
+            var response = await Http.PostAsJsonAsync("api/FutureSalary/project", body);
+            if (response.IsSuccessStatusCode)
+            {
+                var payload = await response.Content.ReadFromJsonAsync<FutureSalaryProjectionResponse>();
+                if (payload?.Rows is { Count: > 0 })
+                {
+                    _startYear = payload.CalendarStartYear;
+                    _endYear = payload.CalendarEndYear;
+                    _rows.AddRange(payload.Rows);
+                }
+                else
+                {
+                    _formError = "Unexpected empty response from the server.";
+                }
+            }
+            else
+            {
+                var err = await response.Content.ReadFromJsonAsync<ApiErrorResponse>();
+                _formError = err?.Message ?? $"Request failed ({(int)response.StatusCode}).";
+            }
+        }
+        catch (HttpRequestException ex)
         {
-            _formError = "Retirement age must be greater than current age.";
-            return;
+            _formError = $"Could not reach the server: {ex.Message}";
         }
-
-        var yearsSpan = _model.RetirementAge - _model.CurrentAge;
-        const int maxSpanYears = 80;
-        if (yearsSpan > maxSpanYears)
+        finally
         {
-            _formError = $"Projection is limited to {maxSpanYears} years. Choose a nearer retirement age.";
-            return;
+            _loading = false;
         }
-
-        if (_model.CurrentSalary <= 0)
-        {
-            _formError = "Salary must be greater than zero.";
-            return;
-        }
-
-        if (_model.AnnualIncreasePercent < 0 || _model.AnnualIncreasePercent > 100)
-        {
-            _formError = "Annual increase should be between 0% and 100%.";
-            return;
-        }
-
-        _endYear = _startYear + yearsSpan;
-        var factor = 1m + _model.AnnualIncreasePercent / 100m;
-
-        for (var n = 0; n <= yearsSpan; n++)
-        {
-            var age = _model.CurrentAge + n;
-            var calendarYear = _startYear + n;
-            var salary = _model.CurrentSalary * PowDecimal(factor, n);
-            _rows.Add(new SalaryProjectionRow(age, calendarYear, salary));
-        }
-    }
-
-    private static decimal PowDecimal(decimal bas, int exp)
-    {
-        if (exp <= 0) return 1m;
-        var r = 1m;
-        for (var i = 0; i < exp; i++) r *= bas;
-        return r;
     }
 
     private static string FormatMoney(decimal value) =>
         value.ToString("C0", CultureInfo.CurrentCulture);
-
-    private sealed record SalaryProjectionRow(int Age, int CalendarYear, decimal Salary);
-
-    private sealed class FutureSalaryForm
-    {
-        public int CurrentAge { get; set; } = 35;
-        public int RetirementAge { get; set; } = 65;
-        public decimal CurrentSalary { get; set; } = 100_000m;
-        public decimal AnnualIncreasePercent { get; set; } = 3m;
-    }
 }
