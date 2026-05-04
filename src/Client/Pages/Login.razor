@@ -1,39 +1,53 @@
 @page "/login"
-@layout MainLayout
+@layout EmptyLayout
 @using FinancialFreedom.Client.Identity
 @inject IAccountManagement Account
 @inject NavigationManager Navigation
 
 <PageTitle>Log in</PageTitle>
 
-<h1>Log in</h1>
+<MudPaper Class="pa-4 mt-2" Elevation="2">
+    <MudText Typo="Typo.h4" GutterBottom="true">Log in</MudText>
+    <MudStack Spacing="2">
+        <MudTextField @bind-Value="_model.Email"
+                      Label="Email"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Email" />
+        <MudTextField @bind-Value="_model.Password"
+                      Label="Password"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password" />
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+        }
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@_busy"
+                   OnClick="SubmitAsync">
+            @(_busy ? "Signing in…" : "Sign in")
+        </MudButton>
+    </MudStack>
+</MudPaper>
 
-<EditForm Model="_model" OnValidSubmit="Submit">
-    <div class="mb-3">
-        <label class="form-label" for="email">Email</label>
-        <InputText id="email" class="form-control" @bind-Value="_model.Email" autocomplete="username" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="password">Password</label>
-        <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" autocomplete="current-password" />
-    </div>
-    @if (_error is not null)
-    {
-        <div class="alert alert-danger">@_error</div>
-    }
-    <button type="submit" class="btn btn-primary" disabled="@_busy">@(_busy ? "Signing in…" : "Sign in")</button>
-</EditForm>
-
-<p class="mt-3"><a href="register">Create an account</a></p>
+<MudText Typo="Typo.body2" Class="mt-3">
+    <MudLink Href="register">Create an account</MudLink>
+</MudText>
 
 @code {
     private readonly LoginModel _model = new();
     private string? _error;
     private bool _busy;
 
-    private async Task Submit()
+    private async Task SubmitAsync()
     {
         _error = null;
+        if (string.IsNullOrWhiteSpace(_model.Email) || string.IsNullOrWhiteSpace(_model.Password))
+        {
+            _error = "Enter email and password.";
+            return;
+        }
+
         _busy = true;
         try
         {

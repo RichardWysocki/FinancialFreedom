@@ -1,0 +1,85 @@
+@page "/financial-health/income-replacement"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+
+<PageTitle>Income Replacement</PageTitle>
+<MudText Typo="Typo.h5" Class="mb-3">Income Replacement Planning</MudText>
+
+@if (_data is null && _error is null)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error">@_error</MudAlert>
+}
+else if (_data is not null)
+{
+    <MudGrid Class="mb-4">
+        <MudItem xs="12" md="8">
+            <MudSimpleTable Dense="true" Striped="true" Bordered="true">
+                <tbody>
+                <tr><td>Estimated future family salary</td><td style="text-align:right">@_data.EstimatedFutureFamilySalary.ToString("C")</td></tr>
+                <tr><td>Annual retirement contributions</td><td style="text-align:right">@_data.AnnualRetirementContributions.ToString("C")</td></tr>
+                <tr><td>Annual health savings contributions</td><td style="text-align:right">@_data.AnnualHealthSavingsContributions.ToString("C")</td></tr>
+                <tr><td><strong>Estimated replacement salary (future − contributions)</strong></td><td style="text-align:right"><strong>@_data.EstimatedReplacementAnnualSalary.ToString("C")</strong></td></tr>
+                <tr><td>Future retirement savings (approx.)</td><td style="text-align:right">@_data.FutureRetirementSavingsApprox.ToString("C")</td></tr>
+                <tr><td>Retirement withdrawal (per withdrawal-rate assumption)</td><td style="text-align:right">@_data.RetirementWithdrawAnnual.ToString("C")</td></tr>
+                <tr><td>Future HSA (approx.)</td><td style="text-align:right">@_data.FutureHealthSavingsApprox.ToString("C")</td></tr>
+                <tr><td>HSA annual withdrawal (over retirement years)</td><td style="text-align:right">@_data.HealthWithdrawAnnual.ToString("C")</td></tr>
+                <tr><td>Estimated Social Security (annual)</td><td style="text-align:right">@_data.EstimatedSocialSecurityAnnual.ToString("C")</td></tr>
+                <tr><td><strong>Total estimated income</strong></td><td style="text-align:right"><strong>@_data.EstimatedTotalRetirementIncome.ToString("C")</strong></td></tr>
+                </tbody>
+            </MudSimpleTable>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-4 text-center" Elevation="2">
+                <MudText Typo="Typo.subtitle1">Replacement vs. target</MudText>
+                <MudText Typo="Typo.h4" Color="@TrafficColor">@_data.ReplacementPercent %</MudText>
+                <MudText Typo="Typo.body2">Traffic light: @_data.TrafficLight (0 red, 1 yellow, 2 green)</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudText Typo="Typo.subtitle1" Class="mb-2">Projected retirement balances by year</MudText>
+    <MudTable Items="_data.ChartPoints" Dense="true" Hover="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Year</MudTh>
+            <MudTh>Dad</MudTh>
+            <MudTh>Mom</MudTh>
+            <MudTh>All</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Year</MudTd>
+            <MudTd>@context.DadBalance.ToString("C")</MudTd>
+            <MudTd>@context.MomBalance.ToString("C")</MudTd>
+            <MudTd>@context.AllBalance.ToString("C")</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private IncomeReplacementResultDto? _data;
+    private string? _error;
+
+    private MudBlazor.Color TrafficColor =>
+        _data?.TrafficLight switch
+        {
+            2 => MudBlazor.Color.Success,
+            1 => MudBlazor.Color.Warning,
+            _ => MudBlazor.Color.Error,
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _data = await Http.GetFromJsonAsync<IncomeReplacementResultDto>("api/projections/income-replacement");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

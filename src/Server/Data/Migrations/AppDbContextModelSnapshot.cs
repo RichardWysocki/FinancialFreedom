@@ -22,6 +22,104 @@ namespace FinancialFreedom.Server.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Account", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccountName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("AssetCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AssetClass")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("CurrentBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("FinancialCompany")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IncludeInRetirementProjections")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("LinkedLiabilityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("TaxTreatment")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetCategoryId");
+
+                    b.HasIndex("HouseholdId");
+
+                    b.HasIndex("LinkedLiabilityId");
+
+                    b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AccountBalanceSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("AsOfDate")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId", "AsOfDate");
+
+                    b.ToTable("AccountBalanceSnapshots");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AccountOwner", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FamilyMemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("OwnershipPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.HasKey("AccountId", "FamilyMemberId");
+
+                    b.HasIndex("FamilyMemberId");
+
+                    b.ToTable("AccountOwners");
+                });
+
             modelBuilder.Entity("FinancialFreedom.Server.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -90,14 +188,86 @@ namespace FinancialFreedom.Server.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("FinancialFreedom.Server.Data.FinancialGoal", b =>
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AssetCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsCash")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEducation")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEmergency")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsHsa")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRetirement")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HouseholdId", "Name");
+
+                    b.ToTable("AssetCategories");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.FamilyMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HouseholdId", "DisplayOrder");
+
+                    b.ToTable("FamilyMembers");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Goal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FundingAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -108,12 +278,138 @@ namespace FinancialFreedom.Server.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateOnly?>("TargetDate")
+                        .HasColumnType("date");
+
                     b.HasKey("Id");
 
-                    b.ToTable("FinancialGoals", null, t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
+                    b.HasIndex("FundingAccountId");
+
+                    b.HasIndex("HouseholdId");
+
+                    b.ToTable("Goals");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Household", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId")
+                        .IsUnique();
+
+                    b.ToTable("Households");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.HsaProfile", b =>
+                {
+                    b.Property<Guid>("FamilyMemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AnnualHsaContribution")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("HasHsa")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasHsaCatchup")
+                        .HasColumnType("bit");
+
+                    b.HasKey("FamilyMemberId");
+
+                    b.ToTable("HsaProfiles");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.IrsLimit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("LimitType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Year", "LimitType")
+                        .IsUnique();
+
+                    b.ToTable("IrsLimits");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Liability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("CurrentBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("LiabilityType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HouseholdId");
+
+                    b.ToTable("Liabilities");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.LiabilityBalanceSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("AsOfDate")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("LiabilityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LiabilityId", "AsOfDate");
+
+                    b.ToTable("LiabilityBalanceSnapshots");
                 });
 
             modelBuilder.Entity("FinancialFreedom.Server.Data.PageVisitLog", b =>
@@ -147,6 +443,118 @@ namespace FinancialFreedom.Server.Data.Migrations
                     b.HasIndex("VisitedAt");
 
                     b.ToTable("PageVisitLogs");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.ProjectionAssumptions", b =>
+                {
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("EducationRateOfReturnPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("EmergencyRateOfReturnPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("HsaRateOfReturnPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("InflationRatePercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<int>("LifeExpectancyAge")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ReplacementRateGreenThresholdPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("ReplacementRateYellowThresholdPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("RetirementRateOfReturnPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("RetirementWithdrawalRatePercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("TaxableRateOfReturnPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.HasKey("HouseholdId");
+
+                    b.ToTable("ProjectionAssumptions");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.RetirementProfile", b =>
+                {
+                    b.Property<Guid>("FamilyMemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("CompanyMatchEndsAtSalaryPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("CompanyMatchPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("ContributionPercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<decimal>("EstimatedSalaryIncreasePercent")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.Property<bool>("HasRetirementCatchup")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("RetirementAge")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Salary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SocialSecurityMonthlyBenefit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("FamilyMemberId");
+
+                    b.ToTable("RetirementProfiles");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.SavingsByAgeMultiple", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Multiple")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Age")
+                        .IsUnique();
+
+                    b.ToTable("SavingsByAgeMultiples");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -286,6 +694,168 @@ namespace FinancialFreedom.Server.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Account", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.AssetCategory", "AssetCategory")
+                        .WithMany("Accounts")
+                        .HasForeignKey("AssetCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FinancialFreedom.Server.Data.Household", "Household")
+                        .WithMany("Accounts")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinancialFreedom.Server.Data.Liability", "LinkedLiability")
+                        .WithMany("LinkedAccounts")
+                        .HasForeignKey("LinkedLiabilityId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AssetCategory");
+
+                    b.Navigation("Household");
+
+                    b.Navigation("LinkedLiability");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AccountBalanceSnapshot", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Account", "Account")
+                        .WithMany("BalanceSnapshots")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AccountOwner", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Account", "Account")
+                        .WithMany("Owners")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinancialFreedom.Server.Data.FamilyMember", "FamilyMember")
+                        .WithMany("AccountOwners")
+                        .HasForeignKey("FamilyMemberId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("FamilyMember");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AssetCategory", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Household", "Household")
+                        .WithMany("AssetCategories")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Household");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.FamilyMember", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Household", "Household")
+                        .WithMany("FamilyMembers")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Household");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Goal", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Account", "FundingAccount")
+                        .WithMany()
+                        .HasForeignKey("FundingAccountId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("FinancialFreedom.Server.Data.Household", "Household")
+                        .WithMany("Goals")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FundingAccount");
+
+                    b.Navigation("Household");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Household", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.HsaProfile", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.FamilyMember", "FamilyMember")
+                        .WithOne("HsaProfile")
+                        .HasForeignKey("FinancialFreedom.Server.Data.HsaProfile", "FamilyMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FamilyMember");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Liability", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Household", "Household")
+                        .WithMany("Liabilities")
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Household");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.LiabilityBalanceSnapshot", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Liability", "Liability")
+                        .WithMany("BalanceSnapshots")
+                        .HasForeignKey("LiabilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Liability");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.ProjectionAssumptions", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.Household", "Household")
+                        .WithOne("ProjectionAssumptions")
+                        .HasForeignKey("FinancialFreedom.Server.Data.ProjectionAssumptions", "HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Household");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.RetirementProfile", b =>
+                {
+                    b.HasOne("FinancialFreedom.Server.Data.FamilyMember", "FamilyMember")
+                        .WithOne("RetirementProfile")
+                        .HasForeignKey("FinancialFreedom.Server.Data.RetirementProfile", "FamilyMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FamilyMember");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -335,6 +905,49 @@ namespace FinancialFreedom.Server.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Account", b =>
+                {
+                    b.Navigation("BalanceSnapshots");
+
+                    b.Navigation("Owners");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.AssetCategory", b =>
+                {
+                    b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.FamilyMember", b =>
+                {
+                    b.Navigation("AccountOwners");
+
+                    b.Navigation("HsaProfile");
+
+                    b.Navigation("RetirementProfile");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Household", b =>
+                {
+                    b.Navigation("Accounts");
+
+                    b.Navigation("AssetCategories");
+
+                    b.Navigation("FamilyMembers");
+
+                    b.Navigation("Goals");
+
+                    b.Navigation("Liabilities");
+
+                    b.Navigation("ProjectionAssumptions");
+                });
+
+            modelBuilder.Entity("FinancialFreedom.Server.Data.Liability", b =>
+                {
+                    b.Navigation("BalanceSnapshots");
+
+                    b.Navigation("LinkedAccounts");
                 });
 #pragma warning restore 612, 618
         }

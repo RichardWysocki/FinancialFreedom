@@ -1,0 +1,66 @@
+@page "/what-if"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+
+<PageTitle>What-If Tools</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-3">What-if — income replacement</MudText>
+<MudText Typo="Typo.body2" Class="mb-4">
+    Temporarily override generic assumptions and see income replacement results without saving those rates permanently.
+</MudText>
+
+@if (_baseline is not null)
+{
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudGrid>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.RetirementRateOfReturnPercent" Label="Retirement return %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.RetirementWithdrawalRatePercent" Label="Withdrawal %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.HsaRateOfReturnPercent" Label="HSA return %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.InflationRatePercent" Label="Inflation %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.LifeExpectancyAge" Label="Life expectancy age" /></MudItem>
+        </MudGrid>
+        <MudButton Class="mt-3" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="RunWhatIf" Disabled="_busy">Run scenario</MudButton>
+    </MudPaper>
+}
+
+@if (_scenario is not null)
+{
+    <MudAlert Severity="Severity.Success" Class="mb-2">
+        Scenario replacement @(_scenario.ReplacementPercent)% — total income @(_scenario.EstimatedTotalRetirementIncome.ToString("C"))
+    </MudAlert>
+}
+
+@code {
+    private ProjectionAssumptionsDto? _baseline;
+    private IncomeReplacementResultDto? _scenario;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _baseline = await Http.GetFromJsonAsync<ProjectionAssumptionsDto>("api/projection-assumptions");
+    }
+
+    private async Task RunWhatIf()
+    {
+        if (_baseline is null)
+            return;
+        _busy = true;
+        _scenario = null;
+        try
+        {
+            var res = await Http.PostAsJsonAsync("api/what-if/income-replacement", _baseline);
+            res.EnsureSuccessStatusCode();
+            _scenario = await res.Content.ReadFromJsonAsync<IncomeReplacementResultDto>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

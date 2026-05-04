@@ -1,0 +1,48 @@
+@page "/net-worth"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+
+<PageTitle>Net Worth Statement</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-3">Net worth statement</MudText>
+
+@if (_nw is null)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else
+{
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudText>As of <strong>@_nw.AsOfDate.ToString("d")</strong></MudText>
+        <MudText>Total assets: <strong>@_nw.TotalAssets.ToString("C")</strong></MudText>
+        <MudText>Total liabilities: <strong>@_nw.TotalLiabilities.ToString("C")</strong></MudText>
+        <MudText>Net worth (liquid − liabilities − goals): <strong>@_nw.NetWorthLiquid.ToString("C")</strong></MudText>
+        <MudText>Including semi-liquid (e.g. real estate equity): <strong>@_nw.NetWorthIncludingRealEstate.ToString("C")</strong></MudText>
+    </MudPaper>
+
+    <MudText Typo="Typo.subtitle1" Class="mb-2">Liquid assets</MudText>
+    <MudTable Items="_nw.AssetRows" Dense="true" Striped="true" Class="mb-4" Hover="true">
+        <HeaderContent>
+            <MudTh>Account</MudTh>
+            <MudTh>Category</MudTh>
+            <MudTh style="text-align:right">Amount</MudTh>
+            <MudTh style="text-align:right">% of assets</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Category</MudTd>
+            <MudTd style="text-align:right">@context.Amount.ToString("C")</MudTd>
+            <MudTd style="text-align:right">@context.PercentOfTotal %</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private NetWorthSummaryDto? _nw;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _nw = await Http.GetFromJsonAsync<NetWorthSummaryDto>("api/net-worth/summary");
+    }
+}

@@ -97,10 +97,34 @@ public sealed class CookieAuthenticationStateProvider(
         try
         {
             using var userResponse = await _http.GetAsync("manage/info");
-            userResponse.EnsureSuccessStatusCode();
+            if (userResponse.StatusCode == HttpStatusCode.Unauthorized)
+                return new AuthenticationState(user);
+
+            if (!userResponse.IsSuccessStatusCode)
+            {
+                logger.LogWarning("manage/info returned {StatusCode}", userResponse.StatusCode);
+                return new AuthenticationState(user);
+            }
 
             var userJson = await userResponse.Content.ReadAsStringAsync();
-            var userInfo = JsonSerializer.Deserialize<UserInfo>(userJson, JsonOptions);
+            if (string.IsNullOrWhiteSpace(userJson) ||
+                userJson.TrimStart().StartsWith('<'))
+            {
+                logger.LogWarning("manage/info returned HTML or empty body (wrong route or redirect); treating as anonymous.");
+                return new AuthenticationState(user);
+            }
+
+            UserInfo? userInfo;
+            try
+            {
+                userInfo = JsonSerializer.Deserialize<UserInfo>(userJson, JsonOptions);
+            }
+            catch (JsonException ex)
+            {
+                logger.LogWarning(ex, "manage/info returned non-JSON or unexpected shape.");
+                return new AuthenticationState(user);
+            }
+
             if (userInfo is null)
                 return new AuthenticationState(user);
 
@@ -140,7 +164,7 @@ public sealed class CookieAuthenticationStateProvider(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Reading authentication state failed.");
+            logger.LogWarning(ex, "Reading authentication state failed.");
         }
 
         return new AuthenticationState(user);

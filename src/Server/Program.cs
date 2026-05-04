@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using FinancialFreedom.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,9 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
             c.Events ??= new CookieAuthenticationEvents();
             c.Events.OnRedirectToLogin = ctx =>
             {
-                if (ctx.Request.Path.StartsWithSegments("/api"))
+                // Identity JSON endpoints (MapIdentityApi) live under /manage and /account — not under /api.
+                // Return 401 so the Blazor client gets JSON/401, not an HTML redirect (which breaks GetAsync + JSON).
+                if (Program.IsJsonOrApiPath(ctx.Request.Path))
                 {
                     ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return Task.CompletedTask;
@@ -27,7 +30,7 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
             };
             c.Events.OnRedirectToAccessDenied = ctx =>
             {
-                if (ctx.Request.Path.StartsWithSegments("/api"))
+                if (Program.IsJsonOrApiPath(ctx.Request.Path))
                 {
                     ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                     return Task.CompletedTask;
@@ -71,6 +74,10 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var useInMemory = builder.Configuration.GetValue("Database:UseInMemory", false);
 var inMemoryName = builder.Configuration["Database:InMemoryDatabaseName"] ?? "FinancialFreedom";
+
+builder.Services.AddScoped<IHouseholdBootstrapService, HouseholdBootstrapService>();
+builder.Services.AddScoped<IFinancialProjectionService, FinancialProjectionService>();
+builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -123,11 +130,11 @@ await using (var scope = app.Services.CreateAsyncScope())
 
     if (app.Environment.IsDevelopment())
         await IdentityDataSeeder.SeedAsync(scope.ServiceProvider);
+
+    await ReferenceDataSeeder.SeedGlobalReferenceDataAsync(db);
 }
 
 app.UseHttpsRedirection();
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -166,8 +173,17 @@ app.MapGet(
 
 app.MapRazorPages();
 app.MapControllers();
+// Serves Blazor framework files, wwwroot, and referenced-package static web assets (e.g. _content/MudBlazor/*.js).
+app.MapStaticAssets();
 app.MapFallbackToFile("index.html");
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+    /// <summary>Returns true for paths that must not trigger cookie redirect-to-login HTML (XHR / Identity APIs).</summary>
+    public static bool IsJsonOrApiPath(PathString path) =>
+        path.StartsWithSegments("/api")
+        || path.StartsWithSegments("/manage")
+        || path.StartsWithSegments("/account");
+}

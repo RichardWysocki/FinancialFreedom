@@ -1,0 +1,41 @@
+@page "/timeline"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+
+<PageTitle>$ Timeline</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-3">Net worth over time (from snapshots)</MudText>
+
+@if (_points is null)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_points.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No snapshots yet — use <strong>SaveData</strong> on Home or import Excel.</MudAlert>
+}
+else
+{
+    <MudTable Items="_points" Dense="true" Hover="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Category</MudTh>
+            <MudTh style="text-align:right">Balance</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Date.ToString("d")</MudTd>
+            <MudTd>@context.CategoryName</MudTd>
+            <MudTd style="text-align:right">@context.Amount.ToString("C")</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<TimelinePointDto>? _points;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _points = await Http.GetFromJsonAsync<List<TimelinePointDto>>("api/timeline");
+    }
+}

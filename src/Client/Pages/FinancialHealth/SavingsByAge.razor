@@ -1,0 +1,53 @@
+@page "/financial-health/savings-by-age"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+
+<PageTitle>Savings by Age</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-2">Are you saving enough — savings factor by age</MudText>
+
+@if (_result is null && _error is null)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Warning">@_error</MudAlert>
+}
+else if (_result is not null)
+{
+    <MudGrid>
+        <MudItem xs="12" md="7">
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudText>For age group factor <strong>@_result.SavingFactorMultiple×</strong> salary, target retirement savings is <strong>@_result.TargetRetirementSavings.ToString("C")</strong> based on combined salary <strong>@_result.CombinedSalary.ToString("C")</strong>.</MudText>
+                <MudText Class="mt-2">Current retirement assets: <strong>@_result.CurrentRetirementAssets.ToString("C")</strong></MudText>
+                <MudText Class="mt-2">Oldest adult age (Jan 1 basis): <strong>@_result.OldestAdultAge</strong></MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="5">
+            <MudPaper Class="pa-4 d-flex flex-column align-center" Elevation="1">
+                <MudText Typo="Typo.h6" Class="mb-2">Success rate</MudText>
+                <MudProgressCircular Color="MudBlazor.Color.Success" Size="Size.Large" Value="@((double)_result.SuccessRatePercent)" />
+                <MudText Class="mt-2">@_result.SuccessRatePercent % of target</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    private SavingsByAgeResultDto? _result;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _result = await Http.GetFromJsonAsync<SavingsByAgeResultDto>("api/projections/savings-by-age");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

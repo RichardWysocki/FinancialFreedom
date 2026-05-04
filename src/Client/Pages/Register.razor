@@ -1,47 +1,63 @@
 @page "/register"
-@layout MainLayout
+@layout EmptyLayout
 @using FinancialFreedom.Client.Identity
 @inject IAccountManagement Account
 @inject NavigationManager Navigation
 
 <PageTitle>Register</PageTitle>
 
-<h1>Create account</h1>
+<MudPaper Class="pa-4 mt-2" Elevation="2">
+    <MudText Typo="Typo.h4" GutterBottom="true">Create account</MudText>
+    <MudStack Spacing="2">
+        <MudTextField @bind-Value="_model.Email"
+                      Label="Email"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Email" />
+        <MudTextField @bind-Value="_model.Password"
+                      Label="Password"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password" />
+        <MudText Typo="Typo.caption" Color="Color.Secondary">
+            At least 8 characters with upper, lower, digit, and symbol.
+        </MudText>
+        @if (_errors.Count > 0)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">
+                <ul class="mb-0 ps-3">
+                    @foreach (var e in _errors)
+                    {
+                        <li>@e</li>
+                    }
+                </ul>
+            </MudAlert>
+        }
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@_busy"
+                   OnClick="SubmitAsync">
+            @(_busy ? "Creating…" : "Register")
+        </MudButton>
+    </MudStack>
+</MudPaper>
 
-<EditForm Model="_model" OnValidSubmit="Submit">
-    <div class="mb-3">
-        <label class="form-label" for="email">Email</label>
-        <InputText id="email" class="form-control" @bind-Value="_model.Email" autocomplete="username" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="password">Password</label>
-        <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" autocomplete="new-password" />
-        <div class="form-text">At least 8 characters with upper, lower, digit, and symbol.</div>
-    </div>
-    @if (_errors.Count > 0)
-    {
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach (var e in _errors)
-                {
-                    <li>@e</li>
-                }
-            </ul>
-        </div>
-    }
-    <button type="submit" class="btn btn-primary" disabled="@_busy">@(_busy ? "Creating…" : "Register")</button>
-</EditForm>
-
-<p class="mt-3"><a href="login">Already have an account? Sign in</a></p>
+<MudText Typo="Typo.body2" Class="mt-3">
+    <MudLink Href="login">Already have an account? Sign in</MudLink>
+</MudText>
 
 @code {
     private readonly RegisterModel _model = new();
     private readonly List<string> _errors = [];
     private bool _busy;
 
-    private async Task Submit()
+    private async Task SubmitAsync()
     {
         _errors.Clear();
+        if (string.IsNullOrWhiteSpace(_model.Email) || string.IsNullOrWhiteSpace(_model.Password))
+        {
+            _errors.Add("Enter email and password.");
+            return;
+        }
+
         _busy = true;
         try
         {

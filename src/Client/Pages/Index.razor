@@ -1,9 +1,257 @@
 ﻿@page "/"
+@using System.Net
+@using System.Net.Http
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@using Microsoft.AspNetCore.Components.Authorization
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthState
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Home — Financial Freedom</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudStack Spacing="3">
+    <MudPaper Class="pa-4" Elevation="2">
+        <MudText Typo="Typo.h5" Class="mb-2">You're on your way to Financial Freedom</MudText>
+        <MudText Typo="Typo.body2" Color="MudBlazor.Color.Secondary">
+            Update your financials and compare projected assets so you can reach your goals.
+        </MudText>
+    </MudPaper>
 
-Welcome to your new app.
+    @if (!_isAuthenticated)
+    {
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.body1" Class="mb-3">
+                Sign in to load your household, see net worth, and use the full app. You can browse this page first without an account.
+            </MudText>
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="login">Sign in</MudButton>
+                <MudLink Href="register" Typo="Typo.body2">Create an account</MudLink>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        @if (_members.Count > 0)
+        {
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by family member</MudText>
+                <MudSelect T="string" Label="Owner" Dense="true" Style="max-width:360px"
+                           Value="@(_ownerFilter ?? "")" ValueChanged="OnOwnerChanged"
+                           Clearable="true">
+                    <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
+                    @foreach (var m in _members)
+                    {
+                        <MudSelectItem T="string" Value="@m.Id.ToString()">@m.Name</MudSelectItem>
+                    }
+                    <MudSelectItem T="string" Value="@("joint")">Joint accounts</MudSelectItem>
+                </MudSelect>
+            </MudPaper>
+        }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+        @if (_dashboard is null && _loadError is null)
+        {
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudProgressLinear Indeterminate="true" />
+            </MudPaper>
+        }
+        else if (_loadError is not null)
+        {
+            <MudAlert Severity="Severity.Error">@_loadError</MudAlert>
+        }
+        else if (_dashboard is not null && !HasFinancialData())
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
+                Your net worth summary will appear here after you add accounts with balances under Settings → Family Assets (and related pages).
+            </MudAlert>
+        }
+        else if (_dashboard is not null)
+        {
+            <MudGrid>
+                <MudItem xs="12" md="7">
+                    <MudPaper Class="pa-4" Elevation="2" Style="min-height: 280px">
+                        <MudText Typo="Typo.h6" Class="mb-3">Your current assets</MudText>
+                        <MudStack Spacing="2">
+                            @foreach (var c in _dashboard.ByCategory)
+                            {
+                                var pct = _dashboard.TotalNetWorth > 0 ? (double)(c.Amount / _dashboard.TotalNetWorth * 100m) : 0;
+                                <div>
+                                    <MudText Typo="Typo.body2">@c.CategoryName — @c.Amount.ToString("C")</MudText>
+                                    <MudProgressLinear Color="MudBlazor.Color.Primary" Rounded="true" Size="Size.Medium" Value="pct" />
+                                </div>
+                            }
+                            <MudDivider Class="my-2" />
+                            <MudText Typo="Typo.subtitle1"><strong>Total: @_dashboard.TotalNetWorth.ToString("C")</strong></MudText>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="5">
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Category totals</MudText>
+                        <MudSimpleTable Dense="true" Striped="true">
+                            <tbody>
+                            @foreach (var c in _dashboard.ByCategory)
+                            {
+                                <tr>
+                                    <td>@c.CategoryName</td>
+                                    <td style="text-align: right">@c.Amount.ToString("C")</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        }
+
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Warning" StartIcon="@Icons.Material.Filled.TableChart"
+                       Disabled="_busy" OnClick="ExportExcel">Excel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Warning" StartIcon="@Icons.Material.Filled.Save"
+                       Disabled="_busy" OnClick="SaveSnapshots">SaveData</MudButton>
+            <label class="mud-button-root mud-button-outlined mud-button-outlined-primary mud-ripple mud-width-full pa-2"
+                   style="cursor:pointer;border-radius:var(--mud-default-borderradius);display:inline-flex;align-items:center;gap:8px">
+                <InputFile OnChange="ImportExcel" accept=".xlsx,.xlsm" class="d-none" />
+                <MudIcon Icon="@Icons.Material.Filled.Upload" />
+                <span>Import Excel</span>
+            </label>
+        </MudStack>
+    }
+</MudStack>
+
+@code {
+    private readonly List<FamilyMemberDto> _members = [];
+    private DashboardDto? _dashboard;
+    private string? _loadError;
+    private string? _ownerFilter;
+    private bool _busy;
+    private bool _isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState.GetAuthenticationStateAsync();
+        _isAuthenticated = state.User.Identity?.IsAuthenticated == true;
+        if (!_isAuthenticated)
+            return;
+
+        await ReloadMembersAsync();
+        await ReloadDashboardAsync();
+    }
+
+    private bool HasFinancialData()
+    {
+        if (_dashboard is null)
+            return false;
+        if (_dashboard.TotalNetWorth != 0)
+            return true;
+        return _dashboard.ByCategory.Count > 0;
+    }
+
+    private async Task OnOwnerChanged(string value)
+    {
+        _ownerFilter = string.IsNullOrWhiteSpace(value) ? null : value;
+        await ReloadDashboardAsync();
+    }
+
+    private async Task ReloadMembersAsync()
+    {
+        try
+        {
+            var list = await Http.GetFromJsonAsync<List<FamilyMemberDto>>("api/family-members");
+            _members.Clear();
+            if (list is not null)
+                _members.AddRange(list);
+        }
+        catch
+        {
+            /* ignore */
+        }
+    }
+
+    private async Task ReloadDashboardAsync()
+    {
+        _loadError = null;
+        _dashboard = null;
+        try
+        {
+            var url = string.IsNullOrEmpty(_ownerFilter)
+                ? "api/dashboard"
+                : $"api/dashboard?owner={Uri.EscapeDataString(_ownerFilter)}";
+            _dashboard = await Http.GetFromJsonAsync<DashboardDto>(url);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _loadError = null;
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+        }
+    }
+
+    private async Task SaveSnapshots()
+    {
+        _busy = true;
+        try
+        {
+            var res = await Http.PostAsync("api/snapshots/save-all", null);
+            res.EnsureSuccessStatusCode();
+            Snackbar.Add("Balances saved for today.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Save failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ExportExcel()
+    {
+        _busy = true;
+        try
+        {
+            var bytes = await Http.GetByteArrayAsync("api/excel/export");
+            var b64 = Convert.ToBase64String(bytes);
+            await JS.InvokeVoidAsync("ff.download", "financial-freedom-accounts.xlsx", b64);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Export failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ImportExcel(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file is null)
+            return;
+
+        _busy = true;
+        try
+        {
+            await using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(stream), "file", file.Name);
+            var res = await Http.PostAsync("api/excel/import", content);
+            res.EnsureSuccessStatusCode();
+            Snackbar.Add("Import completed.", Severity.Success);
+            await ReloadDashboardAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Import failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

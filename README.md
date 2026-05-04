@@ -1,5 +1,24 @@
 # Cursor_CFP_FinancialFreedom
 
+## Financial Freedom app (household CFP-style dashboard)
+
+The Blazor **client** provides a left-nav **MudBlazor** shell with:
+
+- **Home** — net worth by category, owner filter, **SaveData** (snapshots), **Excel** export, **Import Excel** (first worksheet: account name, category, institution, balance; supports `H -` / `W -` / `Combined -` name prefixes).
+- **Settings** — family members (max 2 adults), retirement & HSA profiles, **Family Assets** (joint ownership %), generic projection assumptions, liabilities, sinking-fund goals.
+- **Financial Health** — savings-by-age benchmark, income replacement, wealth withdrawal explainer, emergency fund hint.
+- **$ Timeline** — history from `AccountBalanceSnapshot` rows.
+- **Net Worth Statement** — summary API-driven view.
+- **What-If** — temporary projection-assumption overrides via `POST /api/what-if/income-replacement`.
+
+The **server** exposes REST endpoints under `/api/*`, persists EF Core entities (`Household`, `FamilyMember`, `Account`, `AccountOwner`, `ProjectionAssumptions`, etc.), seeds **IRS limits** and **savings-by-age multiples**, and bootstraps a **Household** per user on first `GET /api/me`.
+
+After pulling, apply EF migrations (includes domain tables after `AddFinancialFreedomDomain`):
+
+```powershell
+dotnet ef database update --project src/Server --startup-project src/Server
+```
+
 ## SSDT user `CFP_FinancialFreedom` (SQL71501)
 
 The database project defines the user **without** `FOR LOGIN` so the build does not require a server-level **Login** object inside the DACPAC (which triggers SQL71501). After publishing to a new database, if your app connects with SQL authentication using that login name, create the **login** on the server (if needed) and link it: `ALTER USER [CFP_FinancialFreedom] WITH LOGIN = [CFP_FinancialFreedom];` (see comments in `database/FinancialFreedom.Database/Post-Deployment/Script.PostDeployment.sql`).
@@ -31,7 +50,7 @@ Do not rely on this in production.
 
 ### Database: apply Identity schema
 
-`FinancialGoals` is maintained by the **SSDT database project** (`database/FinancialFreedom.Database`). Identity tables (`AspNetUsers`, `AspNetRoles`, etc.) are maintained by **EF Core migrations** in `src/Server/Data/Migrations/` and are **excluded from touching** `FinancialGoals` so DACPAC and EF do not fight over that table.
+Legacy SSDT artifacts may still reference **`FinancialGoals`**; the running app’s EF model uses **`Household` / `Account` / …** migrations under `src/Server/Data/Migrations/`. Identity tables (`AspNetUsers`, …) are maintained by EF Core migrations.
 
 **Option A — Let the API update the database (typical for local SQL Server)**
 

@@ -1,0 +1,75 @@
+@page "/settings/generic"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+
+<PageTitle>Generic Settings</PageTitle>
+<MudText Typo="Typo.h5" Class="mb-2">Generic Settings</MudText>
+<MudText Typo="Typo.body2" Class="mb-4">
+    Configure rates of return, withdrawal rate, and replacement-rate thresholds used by projections.
+</MudText>
+
+@if (_model is not null)
+{
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.RetirementRateOfReturnPercent" Label="Retirement rate of return %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.RetirementWithdrawalRatePercent" Label="Retirement withdrawal %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.HsaRateOfReturnPercent" Label="HSA rate of return %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.TaxableRateOfReturnPercent" Label="Taxable / brokerage rate %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.EducationRateOfReturnPercent" Label="Education (529) rate %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.EmergencyRateOfReturnPercent" Label="Emergency / cash rate %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.InflationRatePercent" Label="Inflation %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.LifeExpectancyAge" Label="Life expectancy age" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.ReplacementRateGreenThresholdPercent" Label="Income replacement green ≥ %" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField @bind-Value="_model.ReplacementRateYellowThresholdPercent" Label="Income replacement yellow ≥ %" />
+            </MudItem>
+        </MudGrid>
+        <MudButton Class="mt-4" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="Save">Save</MudButton>
+    </MudPaper>
+}
+
+@code {
+    private ProjectionAssumptionsDto? _model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _model = await Http.GetFromJsonAsync<ProjectionAssumptionsDto>("api/projection-assumptions");
+    }
+
+    private async Task Save()
+    {
+        if (_model is null)
+            return;
+        try
+        {
+            var res = await Http.PutAsJsonAsync("api/projection-assumptions", _model);
+            res.EnsureSuccessStatusCode();
+            Snackbar.Add("Saved.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

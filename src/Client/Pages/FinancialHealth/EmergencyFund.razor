@@ -1,0 +1,31 @@
+@page "/financial-health/emergency"
+@using System.Net.Http.Json
+@using FinancialFreedom.Shared
+@inject HttpClient Http
+
+<PageTitle>Emergency Fund</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-3">Emergency fund</MudText>
+
+@if (_dashboard is not null)
+{
+    var emergency = _dashboard.ByCategory.FirstOrDefault(c => c.CategoryName.Contains("Emergency", StringComparison.OrdinalIgnoreCase));
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudText Typo="Typo.body1">
+            Total balances in categories tagged as emergency:
+            <strong>@(emergency?.Amount.ToString("C") ?? "$0.00")</strong>
+        </MudText>
+        <MudText Typo="Typo.body2" Class="mt-2" Color="MudBlazor.Color.Secondary">
+            Tag accounts under Settings → Family Assets with your Emergency category (created automatically for new households).
+        </MudText>
+    </MudPaper>
+}
+
+@code {
+    private DashboardDto? _dashboard;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _dashboard = await Http.GetFromJsonAsync<DashboardDto>("api/dashboard");
+    }
+}
