@@ -1,7 +1,4 @@
 @page "/timeline"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
 
 <PageTitle>$ Timeline</PageTitle>
 
@@ -29,13 +26,4 @@ else
             <MudTd style="text-align:right">@context.Amount.ToString("C")</MudTd>
         </RowTemplate>
     </MudTable>
-}
-
-@code {
-    private List<TimelinePointDto>? _points;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _points = await Http.GetFromJsonAsync<List<TimelinePointDto>>("api/timeline");
-    }
 }

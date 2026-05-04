@@ -1,124 +1,62 @@
 @page "/settings/retirement"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
-@inject ISnackbar Snackbar
+@using System.Globalization
 
 <PageTitle>Retirement Settings</PageTitle>
-<MudText Typo="Typo.h5" Class="mb-3">Retirement Settings</MudText>
 
-<MudTable Items="_rows" Hover="true" Striped="true" Dense="true" Loading="_loading">
-    <HeaderContent>
-        <MudTh>Member</MudTh>
-        <MudTh>Salary</MudTh>
-        <MudTh>Contribution %</MudTh>
-        <MudTh>Retirement age</MudTh>
-        <MudTh>Raise %</MudTh>
-        <MudTh>Catch-up</MudTh>
-        <MudTh>Match %</MudTh>
-        <MudTh>Match cap %</MudTh>
-        <MudTh>SS monthly</MudTh>
-        <MudTh></MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd>@Name(context.FamilyMemberId)</MudTd>
-        <MudTd>@context.Salary.ToString("C")</MudTd>
-        <MudTd>@context.ContributionPercent</MudTd>
-        <MudTd>@context.RetirementAge</MudTd>
-        <MudTd>@context.EstimatedSalaryIncreasePercent</MudTd>
-        <MudTd>@(context.HasRetirementCatchup ? "Yes" : "No")</MudTd>
-        <MudTd>@context.CompanyMatchPercent</MudTd>
-        <MudTd>@context.CompanyMatchEndsAtSalaryPercent</MudTd>
-        <MudTd>@context.SocialSecurityMonthlyBenefit.ToString("C")</MudTd>
-        <MudTd>
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Warning" OnClick="@(() => Edit(context))" />
-        </MudTd>
-    </RowTemplate>
-</MudTable>
+<div class="ff-retirement-page">
+    <MudText Typo="Typo.h5" Class="mb-3">Retirement Settings</MudText>
 
-<MudDialog @bind-Visible="_dialogOpen">
+    <MudTable Items="_rows"
+              Hover="true"
+              Striped="true"
+              Dense="true"
+              Loading="_loading"
+              Class="ff-retirement-table"
+              Breakpoint="Breakpoint.Sm"
+              HorizontalScrollbar="true">
+        <HeaderContent>
+            <MudTh>Member</MudTh>
+            <MudTh>Salary</MudTh>
+            <MudTh>Contribution %</MudTh>
+            <MudTh>Retirement age</MudTh>
+            <MudTh>Raise %</MudTh>
+            <MudTh>Catch-up</MudTh>
+            <MudTh>Match %</MudTh>
+            <MudTh>Match cap %</MudTh>
+            <MudTh>SS monthly</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@Name(context.FamilyMemberId)</MudTd>
+            <MudTd>@UsdMoney(context.Salary)</MudTd>
+            <MudTd>@PctOneDecimal(context.ContributionPercent)</MudTd>
+            <MudTd>@context.RetirementAge</MudTd>
+            <MudTd>@PctOneDecimal(context.EstimatedSalaryIncreasePercent)</MudTd>
+            <MudTd>@(context.HasRetirementCatchup ? "Yes" : "No")</MudTd>
+            <MudTd>@PctOneDecimal(context.CompanyMatchPercent)</MudTd>
+            <MudTd>@PctOneDecimal(context.CompanyMatchEndsAtSalaryPercent)</MudTd>
+            <MudTd>@UsdMoney(context.SocialSecurityMonthlyBenefit)</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Warning" OnClick="@(() => Edit(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</div>
+
+<MudDialog @bind-Visible="_dialogOpen" Options="_editDialogOptions">
     <TitleContent><MudText Typo="Typo.h6">Edit retirement profile</MudText></TitleContent>
     <DialogContent>
-        <MudNumericField @bind-Value="_salary" Label="Salary" Format="C" Class="mb-2" />
-        <MudNumericField @bind-Value="_contributionPct" Label="Contribution %" Class="mb-2" />
-        <MudNumericField @bind-Value="_retirementAge" Label="Retirement age" Class="mb-2" />
-        <MudNumericField @bind-Value="_raisePct" Label="Estimated raise %" Class="mb-2" />
+        <MudNumericField @bind-Value="_salary" Label="Salary" Format="C2" Culture="@Usd" Class="mb-2" />
+        <MudNumericField @bind-Value="_contributionPct" Label="Contribution %" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudNumericField @bind-Value="_retirementAge" Label="Retirement age" Step="1" Class="mb-2" />
+        <MudNumericField @bind-Value="_raisePct" Label="Estimated raise %" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
         <MudSwitch @bind-Value="_catchup" Label="401(k) catch-up (50+)" Color="MudBlazor.Color.Primary" Class="mb-2" />
-        <MudNumericField @bind-Value="_matchPct" Label="Company match % of your contribution" Class="mb-2" />
-        <MudNumericField @bind-Value="_matchCapPct" Label="Match applies up to % of salary" Class="mb-2" />
-        <MudNumericField @bind-Value="_ssMonthly" Label="Social Security (monthly estimate)" Class="mb-2" />
+        <MudNumericField @bind-Value="_matchPct" Label="Company match % of your contribution" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudNumericField @bind-Value="_matchCapPct" Label="Match applies up to % of salary" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudNumericField @bind-Value="_ssMonthly" Label="Social Security (monthly estimate)" Format="C2" Culture="@Usd" Class="mb-2" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="@(() => _dialogOpen = false)">Cancel</MudButton>
         <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
     </DialogActions>
 </MudDialog>
-
-@code {
-    private List<RetirementProfileDto> _rows = [];
-    private List<FamilyMemberDto> _members = [];
-    private bool _loading = true;
-    private bool _dialogOpen;
-    private Guid _editMemberId;
-
-    private decimal _salary;
-    private decimal _contributionPct;
-    private int _retirementAge;
-    private decimal _raisePct;
-    private bool _catchup;
-    private decimal _matchPct;
-    private decimal _matchCapPct;
-    private decimal _ssMonthly;
-
-    protected override async Task OnInitializedAsync() => await Reload();
-
-    private async Task Reload()
-    {
-        _loading = true;
-        _members = await Http.GetFromJsonAsync<List<FamilyMemberDto>>("api/family-members") ?? [];
-        _rows = await Http.GetFromJsonAsync<List<RetirementProfileDto>>("api/retirement-profiles") ?? [];
-        _loading = false;
-    }
-
-    private string Name(Guid id) => _members.FirstOrDefault(m => m.Id == id)?.Name ?? id.ToString()[..8];
-
-    private void Edit(RetirementProfileDto row)
-    {
-        _editMemberId = row.FamilyMemberId;
-        _salary = row.Salary;
-        _contributionPct = row.ContributionPercent;
-        _retirementAge = row.RetirementAge;
-        _raisePct = row.EstimatedSalaryIncreasePercent;
-        _catchup = row.HasRetirementCatchup;
-        _matchPct = row.CompanyMatchPercent;
-        _matchCapPct = row.CompanyMatchEndsAtSalaryPercent;
-        _ssMonthly = row.SocialSecurityMonthlyBenefit;
-        _dialogOpen = true;
-    }
-
-    private async Task Save()
-    {
-        try
-        {
-            var dto = new RetirementProfileDto(
-                _editMemberId,
-                _salary,
-                _contributionPct,
-                _retirementAge,
-                _raisePct,
-                _catchup,
-                _matchPct,
-                _matchCapPct,
-                _ssMonthly);
-            var res = await Http.PutAsJsonAsync($"api/retirement-profiles/{_editMemberId}", dto);
-            res.EnsureSuccessStatusCode();
-            _dialogOpen = false;
-            await Reload();
-            Snackbar.Add("Saved.", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-}

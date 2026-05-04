@@ -1,7 +1,4 @@
 @page "/net-worth"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
 
 <PageTitle>Net Worth Statement</PageTitle>
 
@@ -36,13 +33,4 @@ else
             <MudTd style="text-align:right">@context.PercentOfTotal %</MudTd>
         </RowTemplate>
     </MudTable>
-}
-
-@code {
-    private NetWorthSummaryDto? _nw;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _nw = await Http.GetFromJsonAsync<NetWorthSummaryDto>("api/net-worth/summary");
-    }
 }

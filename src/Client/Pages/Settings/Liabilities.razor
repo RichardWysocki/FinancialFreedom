@@ -1,8 +1,4 @@
 @page "/settings/liabilities"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
-@inject ISnackbar Snackbar
 
 <PageTitle>Liabilities</PageTitle>
 <MudText Typo="Typo.h5" Class="mb-3">Liabilities</MudText>
@@ -44,51 +40,3 @@
         <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
     </DialogActions>
 </MudDialog>
-
-@code {
-    private List<LiabilityDto> _rows = [];
-    private bool _dialog;
-    private Guid? _editId;
-    private string _name = "";
-    private int _type;
-    private decimal _balance;
-
-    protected override async Task OnInitializedAsync() => await Reload();
-
-    private async Task Reload() => _rows = await Http.GetFromJsonAsync<List<LiabilityDto>>("api/liabilities") ?? [];
-
-    private void Open(LiabilityDto? x)
-    {
-        _editId = x?.Id;
-        _name = x?.Name ?? "";
-        _type = x?.LiabilityType ?? 0;
-        _balance = x?.CurrentBalance ?? 0;
-        _dialog = true;
-    }
-
-    private async Task Save()
-    {
-        var body = new LiabilityUpsertDto(_name, _type, _balance);
-        try
-        {
-            if (_editId is null)
-                (await Http.PostAsJsonAsync("api/liabilities", body)).EnsureSuccessStatusCode();
-            else
-                (await Http.PutAsJsonAsync($"api/liabilities/{_editId}", body)).EnsureSuccessStatusCode();
-            _dialog = false;
-            await Reload();
-            Snackbar.Add("Saved.", Severity.Success);
-        }
-        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
-    }
-
-    private async Task Delete(Guid id)
-    {
-        try
-        {
-            (await Http.DeleteAsync($"api/liabilities/{id}")).EnsureSuccessStatusCode();
-            await Reload();
-        }
-        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
-    }
-}

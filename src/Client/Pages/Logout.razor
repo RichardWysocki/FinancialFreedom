@@ -1,17 +1,6 @@
 @page "/logout"
 @layout MainLayout
-@using FinancialFreedom.Client.Identity
-@inject IAccountManagement Account
-@inject NavigationManager Navigation
 
 <PageTitle>Sign out</PageTitle>
 
 <p>Signing you out…</p>
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        await Account.LogoutAsync();
-        Navigation.NavigateTo("", forceLoad: true);
-    }
-}

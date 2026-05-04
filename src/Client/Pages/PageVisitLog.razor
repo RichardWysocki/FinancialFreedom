@@ -1,7 +1,5 @@
 @page "/page-visit-log"
 @attribute [Authorize]
-@using System.Net.Http.Json
-@inject HttpClient Http
 
 <PageTitle>Page visit log</PageTitle>
 
@@ -45,21 +43,4 @@ else
             </tbody>
         </table>
     </div>
-}
-
-@code {
-    private List<PageVisitLogEntryDto>? _rows;
-    private string? _error;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _rows = await Http.GetFromJsonAsync<List<PageVisitLogEntryDto>>("api/PageVisitLog?take=200");
-        }
-        catch
-        {
-            _error = "Could not load visit log. Sign in and ensure the database has the PageVisitLogs table (run migrations).";
-        }
-    }
 }

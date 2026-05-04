@@ -1,8 +1,4 @@
 @page "/settings/generic"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
-@inject ISnackbar Snackbar
 
 <PageTitle>Generic Settings</PageTitle>
 <MudText Typo="Typo.h5" Class="mb-2">Generic Settings</MudText>
@@ -47,29 +43,4 @@
         </MudGrid>
         <MudButton Class="mt-4" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="Save">Save</MudButton>
     </MudPaper>
-}
-
-@code {
-    private ProjectionAssumptionsDto? _model;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _model = await Http.GetFromJsonAsync<ProjectionAssumptionsDto>("api/projection-assumptions");
-    }
-
-    private async Task Save()
-    {
-        if (_model is null)
-            return;
-        try
-        {
-            var res = await Http.PutAsJsonAsync("api/projection-assumptions", _model);
-            res.EnsureSuccessStatusCode();
-            Snackbar.Add("Saved.", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
 }

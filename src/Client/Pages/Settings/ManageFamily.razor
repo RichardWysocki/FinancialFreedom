@@ -1,8 +1,4 @@
 @page "/settings/family"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
-@inject ISnackbar Snackbar
 
 <PageTitle>Manage Family</PageTitle>
 
@@ -43,96 +39,16 @@
             <MudRadio T="int" Value="0" Color="Color.Primary">Adult</MudRadio>
             <MudRadio T="int" Value="1" Color="Color.Primary">Kid</MudRadio>
         </MudRadioGroup>
-        <MudDatePicker @bind-Date="_formDob" Label="Date of birth" Class="mb-2" />
+        @* Native date input: MudDatePicker's calendar popover is unreliable inside MudDialog (z-index / popover stack). *@
+        <MudTextField T="string"
+                      @bind-Value="_formDobIso"
+                      Label="Date of birth"
+                      InputType="InputType.Date"
+                      Variant="Variant.Outlined"
+                      Class="mb-2" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="@(() => _dialogOpen = false)">Cancel</MudButton>
         <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="SaveDialog">Save</MudButton>
     </DialogActions>
 </MudDialog>
-
-@code {
-    private List<FamilyMemberDto> _members = [];
-    private bool _dialogOpen;
-    private FamilyMemberDto? _editing;
-    private string _formName = "";
-    private int _formType;
-    private DateTime? _formDob = DateTime.Today.AddYears(-30);
-
-    protected override async Task OnInitializedAsync() => await Reload();
-
-    private async Task Reload()
-    {
-        _members = await Http.GetFromJsonAsync<List<FamilyMemberDto>>("api/family-members") ?? [];
-    }
-
-    private static string MemberTypeName(int t) => t == 0 ? "Adult" : "Kid";
-
-    private void OpenEdit(FamilyMemberDto? m)
-    {
-        _editing = m;
-        if (m is null)
-        {
-            _formName = "";
-            _formType = 0;
-            _formDob = DateTime.Today.AddYears(-35);
-        }
-        else
-        {
-            _formName = m.Name;
-            _formType = m.Type;
-            _formDob = m.DateOfBirth.ToDateTime(TimeOnly.MinValue);
-        }
-
-        _dialogOpen = true;
-    }
-
-    private async Task SaveDialog()
-    {
-        if (string.IsNullOrWhiteSpace(_formName) || _formDob is null)
-        {
-            Snackbar.Add("Name and date of birth are required.", Severity.Warning);
-            return;
-        }
-
-        var dob = DateOnly.FromDateTime(_formDob.Value);
-        var body = new FamilyMemberUpsertDto(_formName.Trim(), _formType, dob, _editing?.DisplayOrder ?? _members.Count);
-
-        try
-        {
-            if (_editing is null)
-            {
-                var res = await Http.PostAsJsonAsync("api/family-members", body);
-                res.EnsureSuccessStatusCode();
-            }
-            else
-            {
-                var res = await Http.PutAsJsonAsync($"api/family-members/{_editing.Id}", body);
-                res.EnsureSuccessStatusCode();
-            }
-
-            _dialogOpen = false;
-            await Reload();
-            Snackbar.Add("Saved.", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-
-    private async Task Delete(FamilyMemberDto m)
-    {
-        try
-        {
-            var res = await Http.DeleteAsync($"api/family-members/{m.Id}");
-            res.EnsureSuccessStatusCode();
-            await Reload();
-            Snackbar.Add("Deleted.", Severity.Info);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-}

@@ -1,8 +1,4 @@
 @page "/what-if"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
-@inject ISnackbar Snackbar
 
 <PageTitle>What-If Tools</PageTitle>
 
@@ -30,37 +26,4 @@
     <MudAlert Severity="Severity.Success" Class="mb-2">
         Scenario replacement @(_scenario.ReplacementPercent)% — total income @(_scenario.EstimatedTotalRetirementIncome.ToString("C"))
     </MudAlert>
-}
-
-@code {
-    private ProjectionAssumptionsDto? _baseline;
-    private IncomeReplacementResultDto? _scenario;
-    private bool _busy;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _baseline = await Http.GetFromJsonAsync<ProjectionAssumptionsDto>("api/projection-assumptions");
-    }
-
-    private async Task RunWhatIf()
-    {
-        if (_baseline is null)
-            return;
-        _busy = true;
-        _scenario = null;
-        try
-        {
-            var res = await Http.PostAsJsonAsync("api/what-if/income-replacement", _baseline);
-            res.EnsureSuccessStatusCode();
-            _scenario = await res.Content.ReadFromJsonAsync<IncomeReplacementResultDto>();
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
-        }
-        finally
-        {
-            _busy = false;
-        }
-    }
 }

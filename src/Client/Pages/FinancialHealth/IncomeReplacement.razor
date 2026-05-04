@@ -1,7 +1,4 @@
 @page "/financial-health/income-replacement"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
 
 <PageTitle>Income Replacement</PageTitle>
 <MudText Typo="Typo.h5" Class="mb-3">Income Replacement Planning</MudText>
@@ -57,29 +54,4 @@ else if (_data is not null)
             <MudTd>@context.AllBalance.ToString("C")</MudTd>
         </RowTemplate>
     </MudTable>
-}
-
-@code {
-    private IncomeReplacementResultDto? _data;
-    private string? _error;
-
-    private MudBlazor.Color TrafficColor =>
-        _data?.TrafficLight switch
-        {
-            2 => MudBlazor.Color.Success,
-            1 => MudBlazor.Color.Warning,
-            _ => MudBlazor.Color.Error,
-        };
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _data = await Http.GetFromJsonAsync<IncomeReplacementResultDto>("api/projections/income-replacement");
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-    }
 }

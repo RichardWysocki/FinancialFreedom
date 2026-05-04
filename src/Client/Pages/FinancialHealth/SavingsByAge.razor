@@ -1,7 +1,4 @@
 @page "/financial-health/savings-by-age"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
 
 <PageTitle>Savings by Age</PageTitle>
 
@@ -33,21 +30,4 @@ else if (_result is not null)
             </MudPaper>
         </MudItem>
     </MudGrid>
-}
-
-@code {
-    private SavingsByAgeResultDto? _result;
-    private string? _error;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _result = await Http.GetFromJsonAsync<SavingsByAgeResultDto>("api/projections/savings-by-age");
-        }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-        }
-    }
 }

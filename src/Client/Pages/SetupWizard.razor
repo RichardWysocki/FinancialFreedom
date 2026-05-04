@@ -1,9 +1,4 @@
 @page "/setup"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
-@inject NavigationManager Nav
-@inject ISnackbar Snackbar
 
 <PageTitle>Setup</PageTitle>
 
@@ -29,7 +24,3 @@
         <MudText>Visit <MudLink Href="/">Home</MudLink> for your dashboard.</MudText>
     </MudStep>
 </MudStepper>
-
-@code {
-    private int _step;
-}

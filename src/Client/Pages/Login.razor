@@ -1,8 +1,5 @@
 @page "/login"
 @layout EmptyLayout
-@using FinancialFreedom.Client.Identity
-@inject IAccountManagement Account
-@inject NavigationManager Navigation
 
 <PageTitle>Log in</PageTitle>
 
@@ -33,39 +30,3 @@
 <MudText Typo="Typo.body2" Class="mt-3">
     <MudLink Href="register">Create an account</MudLink>
 </MudText>
-
-@code {
-    private readonly LoginModel _model = new();
-    private string? _error;
-    private bool _busy;
-
-    private async Task SubmitAsync()
-    {
-        _error = null;
-        if (string.IsNullOrWhiteSpace(_model.Email) || string.IsNullOrWhiteSpace(_model.Password))
-        {
-            _error = "Enter email and password.";
-            return;
-        }
-
-        _busy = true;
-        try
-        {
-            var result = await Account.LoginAsync(_model.Email.Trim(), _model.Password);
-            if (result.Succeeded)
-                Navigation.NavigateTo("", forceLoad: true);
-            else
-                _error = string.Join(" ", result.ErrorList);
-        }
-        finally
-        {
-            _busy = false;
-        }
-    }
-
-    private sealed class LoginModel
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-}

@@ -259,3 +259,23 @@ a, .btn-link {
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
+
+/* Retirement settings: stretch table to full main column; scroll horizontally on small widths */
+.ff-retirement-page {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.ff-retirement-page .ff-retirement-table {
+    width: 100%;
+}
+
+@media (min-width: 960px) {
+    .ff-retirement-page {
+        margin-inline: -0.75rem;
+        padding-inline: 0.75rem;
+        width: calc(100% + 1.5rem);
+        max-width: none;
+    }
+}

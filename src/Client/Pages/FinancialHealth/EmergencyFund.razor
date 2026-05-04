@@ -1,7 +1,4 @@
 @page "/financial-health/emergency"
-@using System.Net.Http.Json
-@using FinancialFreedom.Shared
-@inject HttpClient Http
 
 <PageTitle>Emergency Fund</PageTitle>
 
@@ -19,13 +16,4 @@
             Tag accounts under Settings → Family Assets with your Emergency category (created automatically for new households).
         </MudText>
     </MudPaper>
-}
-
-@code {
-    private DashboardDto? _dashboard;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _dashboard = await Http.GetFromJsonAsync<DashboardDto>("api/dashboard");
-    }
 }
