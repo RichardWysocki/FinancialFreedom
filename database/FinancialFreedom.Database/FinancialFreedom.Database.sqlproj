@@ -69,6 +69,7 @@
     <PostDeploy Include="Post-Deployment\Script.PostDeployment.sql" />
     <None Include="Scripts\Migrations\002_AddAspNetCoreIdentity_EfCore.sql" />
     <None Include="Scripts\Migrations\003_AddPageVisitLogs.sql" />
+    <None Include="Scripts\Migrations\004_AddApplicationUserLastLoginAt_EfCore.sql" />
     <None Include="Scripts\ReferenceData\001_example.sql" />
     <Build Include="Security\CFP_FinancialFreedom.sql" />
     <Build Include="Security\RoleMemberships.sql" />

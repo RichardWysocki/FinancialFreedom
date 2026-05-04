@@ -1,0 +1,110 @@
+@using System.Globalization
+@using System.Net.Http.Json
+@implements IDisposable
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="amazon-account-inner">
+    <AuthorizeView>
+        <Authorized>
+            @if (_profile is null && _loadError is null)
+            {
+                <span class="amazon-account-muted">Loading account…</span>
+            }
+            else if (_loadError is not null)
+            {
+                <span class="amazon-account-muted">@_loadError</span>
+            }
+            else if (_profile is not null)
+            {
+                <div class="amazon-account-text">
+                    <span class="amazon-hello">Hello, <strong>@DisplayName</strong></span>
+                    <span class="amazon-last-login">Last sign-in: @FormatLastLogin(_profile.LastLoginAt)</span>
+                </div>
+                <NavLink class="amazon-nav-link amazon-signout" href="logout">Sign out</NavLink>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <NavLink class="amazon-nav-link" href="login">Sign in</NavLink>
+            <NavLink class="amazon-nav-link" href="register">Register</NavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@code {
+    private CurrentUserProfileDto? _profile;
+    private string? _loadError;
+
+    private string DisplayName =>
+        !string.IsNullOrEmpty(_profile?.Email)
+            ? _profile.Email
+            : _profile?.UserName ?? "User";
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthChanged;
+        await LoadIfSignedInAsync();
+    }
+
+    private void OnAuthChanged(Task<AuthenticationState> authStateTask)
+    {
+        _ = HandleAuthChangedAsync(authStateTask);
+    }
+
+    private async Task HandleAuthChangedAsync(Task<AuthenticationState> authStateTask)
+    {
+        var state = await authStateTask;
+        if (state.User.Identity?.IsAuthenticated is true)
+        {
+            await InvokeAsync(ReloadAsync);
+        }
+        else
+        {
+            await InvokeAsync(() =>
+            {
+                _profile = null;
+                _loadError = null;
+                StateHasChanged();
+            });
+        }
+    }
+
+    private async Task ReloadAsync()
+    {
+        _profile = null;
+        _loadError = null;
+        await LoadIfSignedInAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadIfSignedInAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated is not true)
+            return;
+
+        try
+        {
+            _profile = await Http.GetFromJsonAsync<CurrentUserProfileDto>("api/me");
+            _loadError = null;
+        }
+        catch
+        {
+            _loadError = "Could not load profile.";
+        }
+    }
+
+    private static string FormatLastLogin(DateTimeOffset? utc)
+    {
+        if (utc is null)
+            return "— (first visit after this update)";
+
+        var local = utc.Value.ToLocalTime();
+        return local.ToString("g", CultureInfo.CurrentCulture);
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthChanged;
+    }
+}

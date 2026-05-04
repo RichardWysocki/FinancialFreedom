@@ -1,19 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
 <PageVisitLogger />
+<TopNav />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<main class="amazon-main">
+    <article class="amazon-content container-fluid py-3 px-3">
+        @Body
+    </article>
+</main>

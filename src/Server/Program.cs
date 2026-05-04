@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,28 @@ builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
 
                 ctx.Response.Redirect(ctx.RedirectUri);
                 return Task.CompletedTask;
+            };
+
+            c.Events.OnSigningIn = async ctx =>
+            {
+                try
+                {
+                    var userId = ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (string.IsNullOrEmpty(userId))
+                        return;
+
+                    // Update without UserManager to avoid changing SecurityStamp during sign-in.
+                    var db = ctx.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                    await db.Set<ApplicationUser>()
+                        .Where(u => u.Id == userId)
+                        .ExecuteUpdateAsync(
+                            s => s.SetProperty(u => u.LastLoginAt, DateTimeOffset.UtcNow),
+                            ctx.HttpContext.RequestAborted);
+                }
+                catch
+                {
+                    // Do not block sign-in if timestamp update fails.
+                }
             };
         });
     });

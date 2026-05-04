@@ -1,0 +1,151 @@
+.amazon-header {
+    background: linear-gradient(180deg, #131921 0%, #232f3e 100%);
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.amazon-inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    min-height: 3.25rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.amazon-brand {
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.amazon-brand:hover {
+    color: #febd69 !important;
+}
+
+.amazon-menu-toggle {
+    margin-left: auto;
+    border: 1px solid #888;
+    background: #37475a;
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.amazon-nav-wrap {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.amazon-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 0.25rem;
+}
+
+.amazon-nav-link {
+    color: #ddd !important;
+    text-decoration: none !important;
+    padding: 0.45rem 0.65rem;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.amazon-nav-link:hover {
+    color: #febd69 !important;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+::deep .amazon-nav-link.active {
+    color: #febd69 !important;
+    font-weight: 600;
+}
+
+.amazon-account {
+    margin-left: auto;
+}
+
+.amazon-account-inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    justify-content: flex-end;
+}
+
+.amazon-account-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    line-height: 1.25;
+}
+
+.amazon-hello {
+    font-size: 0.88rem;
+    color: #fff;
+}
+
+.amazon-last-login {
+    font-size: 0.75rem;
+    color: #ccc;
+}
+
+.amazon-account-muted {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.amazon-signout {
+    border: 1px solid #565656;
+}
+
+@media (max-width: 767.98px) {
+    .amazon-nav-wrap.amazon-nav-collapsed {
+        display: none;
+    }
+
+    .amazon-nav-wrap:not(.amazon-nav-collapsed) {
+        flex-basis: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .amazon-nav-links {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .amazon-account {
+        margin-left: 0;
+    }
+
+    .amazon-account-inner {
+        justify-content: flex-start;
+    }
+
+    .amazon-account-text {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+@media (min-width: 768px) {
+    .amazon-menu-toggle {
+        display: none !important;
+    }
+
+    .amazon-nav-wrap.amazon-nav-collapsed {
+        display: flex !important;
+    }
+}

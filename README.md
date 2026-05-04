@@ -1,5 +1,9 @@
 # Cursor_CFP_FinancialFreedom
 
+## SSDT user `CFP_FinancialFreedom` (SQL71501)
+
+The database project defines the user **without** `FOR LOGIN` so the build does not require a server-level **Login** object inside the DACPAC (which triggers SQL71501). After publishing to a new database, if your app connects with SQL authentication using that login name, create the **login** on the server (if needed) and link it: `ALTER USER [CFP_FinancialFreedom] WITH LOGIN = [CFP_FinancialFreedom];` (see comments in `database/FinancialFreedom.Database/Post-Deployment/Script.PostDeployment.sql`).
+
 ## SQL Server connection password (do not commit)
 
 The SQL login password for `CFP_FinancialFreedom` belongs in **[User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets)** for the Server project, not in `appsettings.json` (so it is never pushed to git). User secrets override the same `ConnectionStrings:DefaultConnection` key in Development.
@@ -76,6 +80,6 @@ Set `Database:UseInMemory` to `true`. Tests force this via `FinancialFreedomWebA
 
 Blazor client navigations are posted to **`POST /api/PageVisitLog`** (anonymous). Rows are stored in **`PageVisitLogs`** (`Id`, `VisitedAt`, `UserId`, `UserName`, `PagePath`, `QueryString`). When a user is signed in, the API fills user fields from the auth cookie.
 
-After pulling the latest migration, run **`dotnet ef database update`** (or apply `Scripts/Migrations/003_AddPageVisitLogs.sql` manually). The SSDT project also includes **`dbo/Tables/PageVisitLogs.sql`** for DACPAC publishes.
+After pulling the latest migration, run **`dotnet ef database update`** (or apply the matching idempotent scripts under `database/FinancialFreedom.Database/Scripts/Migrations/` manually, e.g. `003_AddPageVisitLogs.sql`, then **`004_AddApplicationUserLastLoginAt_EfCore.sql`** for `AspNetUsers.LastLoginAt`). The SSDT project also includes **`dbo/Tables/PageVisitLogs.sql`** for DACPAC publishes.
 
 Signed-in users can open **`/page-visit-log`** (nav: **Page visits**) to call **`GET /api/PageVisitLog`** and browse recent rows.
