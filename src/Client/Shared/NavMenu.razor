@@ -1,49 +1,36 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FinancialFreedom</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+<MudNavMenu Dense="true">
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavLink Href="setup" Icon="@Icons.Material.Filled.AutoAwesome">Setup wizard</MudNavLink>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="wellness">
-                <span class="oi oi-book" aria-hidden="true"></span> Wellness links
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="future-salary">
-                <span class="oi oi-spreadsheet" aria-hidden="true"></span> Future salary
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    <MudNavGroup Title="Settings" Icon="@Icons.Material.Filled.Settings" Expanded="true">
+        <MudNavLink Href="settings/family" Icon="@Icons.Material.Filled.People">Manage Family</MudNavLink>
+        <MudNavLink Href="settings/retirement" Icon="@Icons.Material.Filled.Work">Retirement Settings</MudNavLink>
+        <MudNavLink Href="settings/health" Icon="@Icons.Material.Filled.LocalHospital">Health Settings</MudNavLink>
+        <MudNavLink Href="settings/assets" Icon="@Icons.Material.Filled.AccountBalance">Family Assets</MudNavLink>
+        <MudNavLink Href="settings/generic" Icon="@Icons.Material.Filled.Tune">Generic Settings</MudNavLink>
+        <MudNavLink Href="settings/liabilities" Icon="@Icons.Material.Filled.CreditCard">Liabilities</MudNavLink>
+        <MudNavLink Href="settings/goals" Icon="@Icons.Material.Filled.Flag">Goals</MudNavLink>
+    </MudNavGroup>
 
-@code {
-    private bool collapseNavMenu = true;
+    <MudNavGroup Title="Financial Health" Icon="@Icons.Material.Filled.Favorite" Expanded="false">
+        <MudNavLink Href="financial-health/current" Icon="@Icons.Material.Filled.Timeline">Current Financial</MudNavLink>
+        <MudNavLink Href="financial-health/emergency" Icon="@Icons.Material.Filled.Shield">Emergency Fund</MudNavLink>
+        <MudNavLink Href="financial-health/savings-by-age" Icon="@Icons.Material.Filled.StackedBarChart">Savings by Age</MudNavLink>
+        <MudNavLink Href="financial-health/income-replacement" Icon="@Icons.Material.Filled.CompareArrows">Income Replacement</MudNavLink>
+        <MudNavLink Href="financial-health/wealth-withdrawal" Icon="@Icons.Material.Filled.Calculate">Wealth Withdrawal</MudNavLink>
+    </MudNavGroup>
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    <MudNavLink Href="planning" Icon="@Icons.Material.Filled.Map">Planning</MudNavLink>
+    <MudNavLink Href="what-if" Icon="@Icons.Material.Filled.Science">What-If Tools</MudNavLink>
+    <MudNavLink Href="wellness" Icon="@Icons.Material.Filled.Link">Helpful Links</MudNavLink>
+    <MudNavLink Href="federal-taxes" Icon="@Icons.Material.Filled.Gavel">Federal Taxes</MudNavLink>
+    <MudNavLink Href="timeline" Icon="@Icons.Material.Filled.ShowChart">$ Timeline</MudNavLink>
+    <MudNavLink Href="net-worth" Icon="@Icons.Material.Filled.Description">Net Worth Statement</MudNavLink>
+    <MudNavLink Href="future-salary" Icon="@Icons.Material.Filled.TrendingUp">Future Salary</MudNavLink>
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="page-visit-log" Icon="@Icons.Material.Filled.ListAlt">Page visits</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+</MudNavMenu>

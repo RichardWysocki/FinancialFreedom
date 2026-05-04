@@ -1,17 +1,39 @@
 ﻿@inherits LayoutComponentBase
+@using FinancialFreedom.Client.Shared
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+<PageVisitLogger />
+
+<div class="ff-shell">
+    <MudAppBar Fixed="true" Elevation="1" Color="Color.Primary" Dense="false" Class="ff-appbar">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       Class="ff-nav-toggle" OnClick="@ToggleSidebar" aria-label="Toggle navigation" />
+        <MudText Typo="Typo.h6" Class="ms-2">
+            <MudLink Href="/" Color="Color.Inherit" Underline="Underline.None">Financial Freedom</MudLink>
+        </MudText>
+        <MudSpacer />
+        <MudLink Href="about" Color="Color.Inherit" Class="me-3" Typo="Typo.body2">About</MudLink>
+        <UserAccountStrip />
+    </MudAppBar>
+
+    <div class="ff-shell-row">
+        <aside class="@SidebarClass" aria-label="Side navigation">
+            <div class="ff-sidebar-header pa-3">
+                <MudText Typo="Typo.subtitle1">Navigation</MudText>
+            </div>
+            <div class="ff-sidebar-body pa-2">
+                <NavMenu />
+            </div>
+        </aside>
+
+        @if (_sidebarOpen)
+        {
+            <div class="ff-scrim" role="presentation" @onclick="@CloseSidebar"></div>
+        }
+
+        <main class="mud-main-content ff-main pa-4">
+            <MudContainer MaxWidth="MaxWidth.False">
+                @Body
+            </MudContainer>
+        </main>
     </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
 </div>

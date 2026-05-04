@@ -3,4 +3,8 @@
     <RootNamespace>FinancialFreedom.Business</RootNamespace>
     <AssemblyName>FinancialFreedom.Business</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\FinancialFreedom.Shared.csproj" />
+  </ItemGroup>
 </Project>

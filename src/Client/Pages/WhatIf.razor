@@ -1,0 +1,29 @@
+@page "/what-if"
+
+<PageTitle>What-If Tools</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-3">What-if — income replacement</MudText>
+<MudText Typo="Typo.body2" Class="mb-4">
+    Temporarily override generic assumptions and see income replacement results without saving those rates permanently.
+</MudText>
+
+@if (_baseline is not null)
+{
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudGrid>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.RetirementRateOfReturnPercent" Label="Retirement return %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.RetirementWithdrawalRatePercent" Label="Withdrawal %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.HsaRateOfReturnPercent" Label="HSA return %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.InflationRatePercent" Label="Inflation %" /></MudItem>
+            <MudItem xs="12" sm="6"><MudNumericField @bind-Value="_baseline.LifeExpectancyAge" Label="Life expectancy age" /></MudItem>
+        </MudGrid>
+        <MudButton Class="mt-3" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="RunWhatIf" Disabled="_busy">Run scenario</MudButton>
+    </MudPaper>
+}
+
+@if (_scenario is not null)
+{
+    <MudAlert Severity="Severity.Success" Class="mb-2">
+        Scenario replacement @(_scenario.ReplacementPercent)% — total income @(_scenario.EstimatedTotalRetirementIncome.ToString("C"))
+    </MudAlert>
+}

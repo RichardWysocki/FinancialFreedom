@@ -59,12 +59,17 @@
     <Folder Include="dbo\Tables\" />
     <Folder Include="Post-Deployment\" />
     <Folder Include="Scripts\" />
+    <Folder Include="Scripts\Migrations\" />
     <Folder Include="Scripts\ReferenceData\" />
     <Folder Include="Security\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\FinancialGoals.sql" />
+    <Build Include="dbo\Tables\PageVisitLogs.sql" />
     <PostDeploy Include="Post-Deployment\Script.PostDeployment.sql" />
+    <None Include="Scripts\Migrations\002_AddAspNetCoreIdentity_EfCore.sql" />
+    <None Include="Scripts\Migrations\003_AddPageVisitLogs.sql" />
+    <None Include="Scripts\Migrations\004_AddApplicationUserLastLoginAt_EfCore.sql" />
     <None Include="Scripts\ReferenceData\001_example.sql" />
     <Build Include="Security\CFP_FinancialFreedom.sql" />
     <Build Include="Security\RoleMemberships.sql" />

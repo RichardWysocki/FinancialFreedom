@@ -1,0 +1,18 @@
+@inherits LayoutComponentBase
+@* MudPopover JS requires an element with class mud-main-content (see MudMainContent). MudLayout + MudMainContent keeps login/register consistent with the rest of the app. *@
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary" Dense="true">
+        <MudText Typo="Typo.h6">
+            <MudLink Href="/" Color="Color.Inherit" Underline="Underline.None">Financial Freedom</MudLink>
+        </MudText>
+        <MudSpacer />
+        <MudLink Href="about" Color="Color.Inherit" Class="me-2" Typo="Typo.body2">About</MudLink>
+        <UserAccountStrip />
+    </MudAppBar>
+    <MudMainContent Class="pa-4">
+        <MudContainer MaxWidth="MaxWidth.Small">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>

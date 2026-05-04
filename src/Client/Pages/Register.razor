@@ -1,0 +1,42 @@
+@page "/register"
+@layout EmptyLayout
+
+<PageTitle>Register</PageTitle>
+
+<MudPaper Class="pa-4 mt-2" Elevation="2">
+    <MudText Typo="Typo.h4" GutterBottom="true">Create account</MudText>
+    <MudStack Spacing="2">
+        <MudTextField @bind-Value="_model.Email"
+                      Label="Email"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Email" />
+        <MudTextField @bind-Value="_model.Password"
+                      Label="Password"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password" />
+        <MudText Typo="Typo.caption" Color="Color.Secondary">
+            At least 8 characters with upper, lower, digit, and symbol.
+        </MudText>
+        @if (_errors.Count > 0)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">
+                <ul class="mb-0 ps-3">
+                    @foreach (var e in _errors)
+                    {
+                        <li>@e</li>
+                    }
+                </ul>
+            </MudAlert>
+        }
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@_busy"
+                   OnClick="SubmitAsync">
+            @(_busy ? "Creating…" : "Register")
+        </MudButton>
+    </MudStack>
+</MudPaper>
+
+<MudText Typo="Typo.body2" Class="mt-3">
+    <MudLink Href="login">Already have an account? Sign in</MudLink>
+</MudText>

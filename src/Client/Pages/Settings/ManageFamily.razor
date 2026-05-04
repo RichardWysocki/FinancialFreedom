@@ -1,0 +1,54 @@
+@page "/settings/family"
+
+<PageTitle>Manage Family</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-2">Manage Family Members</MudText>
+<MudText Typo="Typo.body2" Class="mb-4">
+    Add adults (max 2) and kids. Adults drive retirement and What-If projections; kids appear in net-worth views.
+</MudText>
+
+<MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Warning" StartIcon="@Icons.Material.Filled.Add" Class="mb-3"
+           OnClick="@(() => OpenEdit(null))">Add</MudButton>
+
+<MudTable Items="_members" Hover="true" Striped="true" Dense="true">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Type</MudTh>
+        <MudTh>Date of birth</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Type">@MemberTypeName(context.Type)</MudTd>
+        <MudTd DataLabel="DOB">@context.DateOfBirth.ToString("d")</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Warning" OnClick="@(() => OpenEdit(context))" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="MudBlazor.Color.Error" OnClick="@(() => Delete(context))" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudDialog @bind-Visible="_dialogOpen" Options="new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true }">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_editing is null ? "Add" : "Edit") family member</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_formName" Label="Name" Required="true" Class="mb-2" />
+        <MudText Typo="Typo.body2" Class="mb-1">Type</MudText>
+        <MudRadioGroup T="int" @bind-Value="_formType" Class="mb-3">
+            <MudRadio T="int" Value="0" Color="Color.Primary">Adult</MudRadio>
+            <MudRadio T="int" Value="1" Color="Color.Primary">Kid</MudRadio>
+        </MudRadioGroup>
+        @* Native date input: MudDatePicker's calendar popover is unreliable inside MudDialog (z-index / popover stack). *@
+        <MudTextField T="string"
+                      @bind-Value="_formDobIso"
+                      Label="Date of birth"
+                      InputType="InputType.Date"
+                      Variant="Variant.Outlined"
+                      Class="mb-2" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dialogOpen = false)">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="SaveDialog">Save</MudButton>
+    </DialogActions>
+</MudDialog>

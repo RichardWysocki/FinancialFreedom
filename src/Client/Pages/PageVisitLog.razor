@@ -1,0 +1,46 @@
+@page "/page-visit-log"
+@attribute [Authorize]
+
+<PageTitle>Page visit log</PageTitle>
+
+<h1>Page visit log</h1>
+<p class="text-muted">Recent route views recorded from this app (newest first).</p>
+
+@if (_error is not null)
+{
+    <div class="alert alert-warning">@_error</div>
+}
+else if (_rows is null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (_rows.Count == 0)
+{
+    <p>No visits recorded yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Visited (UTC)</th>
+                    <th>User</th>
+                    <th>Path</th>
+                    <th>Query</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in _rows)
+                {
+                    <tr>
+                        <td>@r.VisitedAt.ToString("u")</td>
+                        <td>@(r.UserName ?? r.UserId ?? "—")</td>
+                        <td><code>@r.PagePath</code></td>
+                        <td><code>@(r.QueryString ?? "—")</code></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

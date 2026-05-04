@@ -1,0 +1,44 @@
+---
+description: Production architecture — national-scale readiness, security, and operability for Financial Freedom
+alwaysApply: true
+---
+
+# Financial Freedom — production & scale rules
+
+Assume this codebase may one day serve **millions of U.S. users** managing sensitive household financial data. Every change should remain compatible with **horizontal scale**, **strong isolation**, and **safe operations**.
+
+## Non‑negotiables
+
+- **Tenant / household isolation**: APIs and data access must never mix one household’s data with another’s. Authorization checks belong on the server for every sensitive read and mutation.
+- **Secrets**: No API keys, connection strings, or certificates in source control. Use environment-specific configuration and secret stores appropriate to deployment.
+- **Client trust model**: Blazor WASM is **untrusted**; never ship secrets in bundles. Treat all inputs from the client as unvalidated until the API verifies them.
+
+## Scalability & performance
+
+- **Unbounded lists**: Prefer pagination, caps, or filtered queries for endpoints that can grow without limit (logs, accounts, history).
+- **Data access**: Avoid N+1 query patterns; index foreign keys and common filter columns on hot paths; document intentional tradeoffs when deferring indexes.
+- **Caching**: Use caching only where correctness is preserved (tenant-scoped keys, explicit invalidation or TTL strategy). Do not cache cross-tenant responses together.
+- **Payload shape**: Prefer coarse-grained or aggregated APIs for dashboards when chatty per-row calls would not survive large user counts.
+
+## Security & privacy
+
+- Treat names, emails, balances, and identifiers as **PII / sensitive financial data**: least privilege, minimal exposure in logs, HTTPS for all traffic.
+- **Input validation** at API boundaries; parameterized database access; careful deserialization of uploads (e.g. Excel).
+- **Rate limiting / abuse**: When adding public or expensive endpoints, note assumptions for future throttling or quotas.
+
+## Reliability & quality
+
+- **Testing**: Critical calculations, authorization paths, and import/export flows deserve automated tests where ROI is clear.
+- **Errors**: Fail safely; user-facing messages should not leak internal details; preserve enough server-side detail for operators (structured logging readiness).
+- **Idempotency**: Design writes that may retry (imports, snapshots, bulk saves) so duplicate submissions do not corrupt state.
+
+## Frontend (Blazor / MudBlazor)
+
+- Match **existing project conventions** (e.g. `*.razor.cs` partials, shared layout patterns).
+- Avoid patterns that break at scale inside dialogs (e.g. fragile popovers); prefer approaches that work reliably across browsers.
+
+## AI / assistant behavior in this repo
+
+- Prefer **small, reviewable diffs**; do not refactor broadly unless requested.
+- When touching APIs or schema, call out **backward compatibility** and **migration** implications.
+- Frame financial outputs as **informational tools**, not professional tax or investment advice, where relevant to UI copy.

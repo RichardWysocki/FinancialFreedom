@@ -1,0 +1,32 @@
+@page "/login"
+@layout EmptyLayout
+
+<PageTitle>Log in</PageTitle>
+
+<MudPaper Class="pa-4 mt-2" Elevation="2">
+    <MudText Typo="Typo.h4" GutterBottom="true">Log in</MudText>
+    <MudStack Spacing="2">
+        <MudTextField @bind-Value="_model.Email"
+                      Label="Email"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Email" />
+        <MudTextField @bind-Value="_model.Password"
+                      Label="Password"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password" />
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+        }
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@_busy"
+                   OnClick="SubmitAsync">
+            @(_busy ? "Signing in…" : "Sign in")
+        </MudButton>
+    </MudStack>
+</MudPaper>
+
+<MudText Typo="Typo.body2" Class="mt-3">
+    <MudLink Href="register">Create an account</MudLink>
+</MudText>

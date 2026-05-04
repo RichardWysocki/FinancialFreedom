@@ -1,0 +1,62 @@
+@page "/settings/retirement"
+@using System.Globalization
+
+<PageTitle>Retirement Settings</PageTitle>
+
+<div class="ff-retirement-page">
+    <MudText Typo="Typo.h5" Class="mb-3">Retirement Settings</MudText>
+
+    <MudTable Items="_rows"
+              Hover="true"
+              Striped="true"
+              Dense="true"
+              Loading="_loading"
+              Class="ff-retirement-table"
+              Breakpoint="Breakpoint.Sm"
+              HorizontalScrollbar="true">
+        <HeaderContent>
+            <MudTh>Member</MudTh>
+            <MudTh>Salary</MudTh>
+            <MudTh>Contribution %</MudTh>
+            <MudTh>Retirement age</MudTh>
+            <MudTh>Raise %</MudTh>
+            <MudTh>Catch-up</MudTh>
+            <MudTh>Match %</MudTh>
+            <MudTh>Match cap %</MudTh>
+            <MudTh>SS monthly</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@Name(context.FamilyMemberId)</MudTd>
+            <MudTd>@UsdMoney(context.Salary)</MudTd>
+            <MudTd>@PctOneDecimal(context.ContributionPercent)</MudTd>
+            <MudTd>@context.RetirementAge</MudTd>
+            <MudTd>@PctOneDecimal(context.EstimatedSalaryIncreasePercent)</MudTd>
+            <MudTd>@(context.HasRetirementCatchup ? "Yes" : "No")</MudTd>
+            <MudTd>@PctOneDecimal(context.CompanyMatchPercent)</MudTd>
+            <MudTd>@PctOneDecimal(context.CompanyMatchEndsAtSalaryPercent)</MudTd>
+            <MudTd>@UsdMoney(context.SocialSecurityMonthlyBenefit)</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Warning" OnClick="@(() => Edit(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</div>
+
+<MudDialog @bind-Visible="_dialogOpen" Options="_editDialogOptions">
+    <TitleContent><MudText Typo="Typo.h6">Edit retirement profile</MudText></TitleContent>
+    <DialogContent>
+        <MudNumericField @bind-Value="_salary" Label="Salary" Format="C2" Culture="@Usd" Class="mb-2" />
+        <MudNumericField @bind-Value="_contributionPct" Label="Contribution %" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudNumericField @bind-Value="_retirementAge" Label="Retirement age" Step="1" Class="mb-2" />
+        <MudNumericField @bind-Value="_raisePct" Label="Estimated raise %" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudSwitch @bind-Value="_catchup" Label="401(k) catch-up (50+)" Color="MudBlazor.Color.Primary" Class="mb-2" />
+        <MudNumericField @bind-Value="_matchPct" Label="Company match % of your contribution" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudNumericField @bind-Value="_matchCapPct" Label="Match applies up to % of salary" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2" />
+        <MudNumericField @bind-Value="_ssMonthly" Label="Social Security (monthly estimate)" Format="C2" Culture="@Usd" Class="mb-2" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dialogOpen = false)">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>

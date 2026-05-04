@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FinancialFreedom.Business\FinancialFreedom.Business.csproj" />
     <ProjectReference Include="..\..\src\Server\FinancialFreedom.Server.csproj" />
+    <ProjectReference Include="..\..\src\Shared\FinancialFreedom.Shared.csproj" />
   </ItemGroup>
 
 </Project>

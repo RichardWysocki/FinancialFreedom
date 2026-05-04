@@ -1,0 +1,36 @@
+@page "/settings/goals"
+
+<PageTitle>Goals</PageTitle>
+<MudText Typo="Typo.h5" Class="mb-3">Sinking-fund goals</MudText>
+
+<MudButton Class="mb-3" Variant="Variant.Filled" Color="MudBlazor.Color.Warning" OnClick="@(() => Open(null))">Add</MudButton>
+
+<MudTable Items="_rows" Dense="true" Hover="true" Striped="true">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh style="text-align:right">Target</MudTh>
+        <MudTh>Target date</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Name</MudTd>
+        <MudTd style="text-align:right">@context.TargetAmount.ToString("C")</MudTd>
+        <MudTd>@(context.TargetDate?.ToString("d") ?? "—")</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(() => Open(context))" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="MudBlazor.Color.Error" OnClick="@(() => Delete(context.Id))" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudDialog @bind-Visible="_dialog">
+    <DialogContent>
+        <MudTextField @bind-Value="_name" Label="Name" Class="mb-2" />
+        <MudNumericField @bind-Value="_amount" Label="Target amount" Format="C" Class="mb-2" />
+        <MudDatePicker @bind-Date="_targetDate" Label="Target date" Class="mb-2" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _dialog = false)">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
