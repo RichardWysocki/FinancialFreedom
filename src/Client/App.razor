@@ -1,8 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-<MudThemeProvider />
+@using MudBlazor
+@* Popover must come before Dialog (MudBlazor 8+); otherwise MudSelect/MudMenu inside dialogs break. GH #10699 *@
+<MudThemeProvider Theme="FfMudTheme" />
+<MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-<MudPopoverProvider />
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">

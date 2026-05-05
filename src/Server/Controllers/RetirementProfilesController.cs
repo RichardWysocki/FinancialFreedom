@@ -20,13 +20,25 @@ public class RetirementProfilesController(AppDbContext db) : HouseholdController
             .Select(m => m.Id)
             .ToListAsync(cancellationToken);
 
+        var inflation = await GetInflationPercentAsync(h.Id, cancellationToken);
+
         var profiles = await db.RetirementProfiles.AsNoTracking()
+            .Include(r => r.FamilyMember)
             .Where(r => adultIds.Contains(r.FamilyMemberId))
+            .OrderBy(r => r.FamilyMemberId)
             .ToListAsync(cancellationToken);
 
-        var result = profiles
-            .OrderBy(r => r.FamilyMemberId)
-            .Select(r => new RetirementProfileDto(
+        var asOf = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var result = new List<RetirementProfileDto>(profiles.Count);
+        foreach (var r in profiles)
+        {
+            var projected = RetirementSocialSecurityProjection.ProjectedMonthly(
+                r.SocialSecurityMonthlyBenefit,
+                inflation,
+                r.FamilyMember.DateOfBirth,
+                r.RetirementAge,
+                asOf);
+            result.Add(new RetirementProfileDto(
                 r.FamilyMemberId,
                 r.Salary,
                 r.ContributionPercent,
@@ -35,8 +47,9 @@ public class RetirementProfilesController(AppDbContext db) : HouseholdController
                 r.HasRetirementCatchup,
                 r.CompanyMatchPercent,
                 r.CompanyMatchEndsAtSalaryPercent,
-                r.SocialSecurityMonthlyBenefit))
-            .ToList();
+                r.SocialSecurityMonthlyBenefit,
+                projected));
+        }
 
         return Ok(result);
     }
@@ -67,8 +80,23 @@ public class RetirementProfilesController(AppDbContext db) : HouseholdController
         r.CompanyMatchPercent = body.CompanyMatchPercent;
         r.CompanyMatchEndsAtSalaryPercent = body.CompanyMatchEndsAtSalaryPercent;
         r.SocialSecurityMonthlyBenefit = body.SocialSecurityMonthlyBenefit;
+        var inflation = await GetInflationPercentAsync(h.Id, cancellationToken);
+        var asOf = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        r.ProjectedSocialSecurityMonthlyBenefit = RetirementSocialSecurityProjection.ProjectedMonthly(
+            body.SocialSecurityMonthlyBenefit,
+            inflation,
+            m.DateOfBirth,
+            body.RetirementAge,
+            asOf);
 
         await db.SaveChangesAsync(cancellationToken);
         return NoContent();
+    }
+
+    private async Task<decimal> GetInflationPercentAsync(Guid householdId, CancellationToken cancellationToken)
+    {
+        var p = await db.ProjectionAssumptions.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.HouseholdId == householdId, cancellationToken);
+        return p?.InflationRatePercent ?? 2.5m;
     }
 }

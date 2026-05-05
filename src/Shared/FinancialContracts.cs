@@ -22,7 +22,8 @@ public record RetirementProfileDto(
     bool HasRetirementCatchup,
     decimal CompanyMatchPercent,
     decimal CompanyMatchEndsAtSalaryPercent,
-    decimal SocialSecurityMonthlyBenefit);
+    decimal SocialSecurityMonthlyBenefit,
+    decimal ProjectedSocialSecurityMonthlyBenefit);
 
 public record HsaProfileDto(
     Guid FamilyMemberId,

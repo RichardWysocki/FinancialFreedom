@@ -13,10 +13,18 @@ public partial class GenericSettings
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
     private ProjectionAssumptionsDto? _model;
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        _model = await Http.GetFromJsonAsync<ProjectionAssumptionsDto>("api/projection-assumptions");
+        try
+        {
+            _model = await Http.GetFromJsonAsync<ProjectionAssumptionsDto>("api/projection-assumptions");
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private async Task Save()

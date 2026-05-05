@@ -27,10 +27,11 @@
         @if (_members.Count > 0)
         {
             <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.subtitle1" Class="mb-2">Filter by family member</MudText>
-                <MudSelect T="string" Label="Owner" Dense="true" Style="max-width:360px"
+                @* Single label on the control avoids floating "Owner" text overlapping selected "All". *@
+                <MudSelect T="string" Label="Filter by family member" Dense="true" Variant="Variant.Outlined"
+                           Style="max-width:360px"
                            Value="@(_ownerFilter ?? "")" ValueChanged="OnOwnerChanged"
-                           Clearable="true">
+                           AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                     <MudSelectItem T="string" Value="@("")">All</MudSelectItem>
                     @foreach (var m in _members)
                     {

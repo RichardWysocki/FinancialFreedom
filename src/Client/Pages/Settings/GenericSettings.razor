@@ -6,6 +6,11 @@
     Configure rates of return, withdrawal rate, and replacement-rate thresholds used by projections.
 </MudText>
 
+@if (_loading)
+{
+    <MudProgressLinear Color="MudBlazor.Color.Primary" Indeterminate="true" Class="mb-4" aria-busy="true" />
+}
+
 @if (_model is not null)
 {
     <MudPaper Class="pa-4" Elevation="1">

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FinancialFreedom.Shared;
 using Microsoft.AspNetCore.Components;
@@ -32,6 +33,47 @@ public partial class ManageFamily
     }
 
     private static string MemberTypeName(int t) => t == 0 ? "Adult" : "Kid";
+
+    /// <summary>Reads a user-facing message from a non-success API response (JSON body or plain text).</summary>
+    private static async Task<string> ReadHttpErrorAsync(HttpResponseMessage response)
+    {
+        var text = (await response.Content.ReadAsStringAsync()).Trim();
+        if (string.IsNullOrEmpty(text))
+            return $"Request failed ({(int)response.StatusCode}).";
+
+        try
+        {
+            using var doc = JsonDocument.Parse(text);
+            var root = doc.RootElement;
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (TryGetJsonString(root, "message", out var m)) return m;
+                if (TryGetJsonString(root, "Message", out var m2)) return m2;
+                if (TryGetJsonString(root, "detail", out var d)) return d;
+                if (TryGetJsonString(root, "title", out var t)) return t;
+            }
+            else if (root.ValueKind == JsonValueKind.String)
+            {
+                var s = root.GetString();
+                if (!string.IsNullOrWhiteSpace(s)) return s;
+            }
+        }
+        catch (JsonException)
+        {
+            // Plain-text error body
+        }
+
+        return text;
+    }
+
+    private static bool TryGetJsonString(JsonElement root, string name, out string value)
+    {
+        value = "";
+        if (!root.TryGetProperty(name, out var el) || el.ValueKind != JsonValueKind.String)
+            return false;
+        value = el.GetString() ?? "";
+        return value.Length > 0;
+    }
 
     private void OpenEdit(FamilyMemberDto? m)
     {
@@ -68,12 +110,20 @@ public partial class ManageFamily
             if (_editing is null)
             {
                 var res = await Http.PostAsJsonAsync("api/family-members", body);
-                res.EnsureSuccessStatusCode();
+                if (!res.IsSuccessStatusCode)
+                {
+                    Snackbar.Add(await ReadHttpErrorAsync(res), Severity.Error);
+                    return;
+                }
             }
             else
             {
                 var res = await Http.PutAsJsonAsync($"api/family-members/{_editing.Id}", body);
-                res.EnsureSuccessStatusCode();
+                if (!res.IsSuccessStatusCode)
+                {
+                    Snackbar.Add(await ReadHttpErrorAsync(res), Severity.Error);
+                    return;
+                }
             }
 
             _dialogOpen = false;
@@ -91,7 +141,12 @@ public partial class ManageFamily
         try
         {
             var res = await Http.DeleteAsync($"api/family-members/{m.Id}");
-            res.EnsureSuccessStatusCode();
+            if (!res.IsSuccessStatusCode)
+            {
+                Snackbar.Add(await ReadHttpErrorAsync(res), Severity.Error);
+                return;
+            }
+
             await Reload();
             Snackbar.Add("Deleted.", Severity.Info);
         }
