@@ -1,0 +1,20 @@
+---
+description: Legacy AreyouReady repo is read-only — never modify files there
+alwaysApply: true
+---
+
+# AreyouReady repository — **no changes**
+
+The folder **`C:\Users\richa\source\repos\AreyouReady`** (and any multi-root workspace root that is that repository) is **reference-only**.
+
+## Required behavior
+
+- **Do not** create, edit, delete, rename, or move files under that path.
+- **Do not** run shell commands that alter that tree (e.g. `git` writes, builds that overwrite sources, formatters, installers) when the working directory or targets are under `AreyouReady`.
+- **Do not** add `.cursor` config, rules, hooks, or other tooling inside `AreyouReady` as part of Financial Freedom work.
+
+## Allowed
+
+- **Read** files there for comparison, porting ideas, or explaining behavior — **copy patterns into `Cursor_CFP_FinancialFreedom` instead of changing AreyouReady**.
+
+If the user explicitly asks to change AreyouReady, **refuse** and ask them to remove this rule or edit it in their own editor outside agent apply flows.

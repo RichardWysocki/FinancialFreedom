@@ -13,4 +13,6 @@ public class RetirementProfile
     public decimal CompanyMatchPercent { get; set; }
     public decimal CompanyMatchEndsAtSalaryPercent { get; set; }
     public decimal SocialSecurityMonthlyBenefit { get; set; }
+    /// <summary>SS monthly estimate grown to retirement using household inflation (persisted).</summary>
+    public decimal ProjectedSocialSecurityMonthlyBenefit { get; set; }
 }

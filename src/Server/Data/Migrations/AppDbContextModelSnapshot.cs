@@ -518,6 +518,10 @@ namespace FinancialFreedom.Server.Data.Migrations
                     b.Property<bool>("HasRetirementCatchup")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("ProjectedSocialSecurityMonthlyBenefit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("RetirementAge")
                         .HasColumnType("int");
 

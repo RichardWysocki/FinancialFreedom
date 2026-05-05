@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using FinancialFreedom.Client;
 using FinancialFreedom.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -93,6 +94,5 @@ public partial class FutureSalaryCalculator
         await JS.InvokeVoidAsync("ff.download", "future-salary-projection.csv", b64);
     }
 
-    private static string FormatMoney(decimal value) =>
-        value.ToString("C0", CultureInfo.CurrentCulture);
+    private static string FormatMoney(decimal value) => UiMoney.Format(value, "C0");
 }

@@ -47,3 +47,52 @@ window.ff.download = function (fileName, base64) {
     link.click();
     document.body.removeChild(link);
 };
+
+/**
+ * Select entire field value when the user tabs or clicks into a Mud input (caret no longer jumps before $ / % adorners).
+ * Add class ff-input-select-all on MudNumericField / MudTextField roots.
+ */
+(function () {
+    if (window.ff.__inputSelectAllInit) return;
+    window.ff.__inputSelectAllInit = true;
+
+    function selectAll(inp) {
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+                try {
+                    if (typeof inp.select === 'function') inp.select();
+                    if (
+                        typeof inp.setSelectionRange === 'function' &&
+                        typeof inp.value === 'string'
+                    )
+                        inp.setSelectionRange(0, inp.value.length);
+                } catch (e) {
+                    /* noop */
+                }
+            });
+        });
+    }
+
+    document.addEventListener(
+        'focusin',
+        function (ev) {
+            var t = ev.target;
+            if (!t || t.tagName !== 'INPUT') return;
+            if (typeof t.closest !== 'function' || !t.closest('.ff-input-select-all')) return;
+            selectAll(t);
+        },
+        true
+    );
+
+    /** Click-focus: Mud sometimes sets caret position after focus — re-select after pointer lifts. */
+    document.addEventListener(
+        'pointerup',
+        function (ev) {
+            var t = ev.target;
+            if (!t || t.tagName !== 'INPUT') return;
+            if (typeof t.closest !== 'function' || !t.closest('.ff-input-select-all')) return;
+            selectAll(t);
+        },
+        true
+    );
+})();

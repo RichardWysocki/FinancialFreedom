@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "FinancialFreedom.Business/1.0.0": {
+        "dependencies": {
+          "FinancialFreedom.Shared": "1.0.0"
+        },
+        "runtime": {
+          "FinancialFreedom.Business.dll": {}
+        }
+      },
+      "FinancialFreedom.Shared/1.0.0": {
+        "runtime": {
+          "FinancialFreedom.Shared.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FinancialFreedom.Business/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FinancialFreedom.Shared/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

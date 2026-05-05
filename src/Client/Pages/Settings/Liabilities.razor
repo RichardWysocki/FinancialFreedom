@@ -15,7 +15,7 @@
     <RowTemplate>
         <MudTd>@context.Name</MudTd>
         <MudTd>@context.LiabilityType</MudTd>
-        <MudTd style="text-align:right">@context.CurrentBalance.ToString("C")</MudTd>
+        <MudTd style="text-align:right">@UiMoney.Format(context.CurrentBalance)</MudTd>
         <MudTd>
             <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(() => Open(context))" />
             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="MudBlazor.Color.Error" OnClick="@(() => Delete(context.Id))" />
@@ -33,7 +33,7 @@
             <MudSelectItem T="int" Value="2">Credit card</MudSelectItem>
             <MudSelectItem T="int" Value="3">Other</MudSelectItem>
         </MudSelect>
-        <MudNumericField @bind-Value="_balance" Label="Balance" Format="C" />
+        <MudNumericField @bind-Value="_balance" Label="Balance" Format="C2" Culture="@UiMoney.Usd" Class="ff-input-select-all" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="@(() => _dialog = false)">Cancel</MudButton>

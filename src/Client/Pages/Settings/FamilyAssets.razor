@@ -1,16 +1,46 @@
 @page "/settings/assets"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Globalization
 
 <PageTitle>Family Assets</PageTitle>
 <MudText Typo="Typo.h5" Class="mb-3">Family Assets</MudText>
 
+@if (_ownerSlices.Count > 0 && _ownerPieStyle is not null)
+{
+    <MudPaper Class="pa-4 mb-3 ff-owner-assets-summary" Elevation="1">
+        <MudText Typo="Typo.subtitle1" Class="mb-3">Assets by owner</MudText>
+        <MudText Typo="Typo.caption" Color="MudBlazor.Color.Secondary" Class="mb-3">
+            Balance attributed to each household member (only people with assets are shown).
+        </MudText>
+        <div class="ff-owner-pie-row">
+            <div class="ff-owner-pie" style="background: @_ownerPieStyle" title="Share of total account balances"></div>
+            <div class="ff-owner-legend">
+                @foreach (var s in _ownerSlices)
+                {
+                    <div class="ff-owner-legend-row">
+                        <span class="ff-owner-swatch" style="background:@s.Color"></span>
+                        <div>
+                            <MudText Typo="Typo.body2"><strong>@s.Name</strong> — @UsdMoney(s.Amount)</MudText>
+                            <MudText Typo="Typo.caption" Color="MudBlazor.Color.Secondary">@OwnerPctOfAttributed(s).ToString("F1", CultureInfo.InvariantCulture)% of attributed total</MudText>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </MudPaper>
+}
+
 <MudButton Class="mb-3" Variant="Variant.Filled" Color="MudBlazor.Color.Warning" StartIcon="@Icons.Material.Filled.Add"
            OnClick="@(() => Open(null))">Add</MudButton>
 
-<MudTable Items="_accounts" Hover="true" Striped="true" Dense="true" Loading="_loading">
+<MudTable Items="_accounts" Hover="true" Striped="true" Dense="true" Loading="_loading" HorizontalScrollbar="true" Breakpoint="Breakpoint.Sm">
     <HeaderContent>
         <MudTh>Account</MudTh>
         <MudTh>Institution</MudTh>
         <MudTh>Category</MudTh>
+        <MudTh>Asset class</MudTh>
+        <MudTh>Tax</MudTh>
+        <MudTh>Owner</MudTh>
         <MudTh>Balance</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
@@ -18,7 +48,10 @@
         <MudTd>@context.AccountName</MudTd>
         <MudTd>@context.FinancialCompany</MudTd>
         <MudTd>@CategoryName(context.AssetCategoryId)</MudTd>
-        <MudTd>@context.CurrentBalance.ToString("C")</MudTd>
+        <MudTd>@AssetClassName(context.AssetClass)</MudTd>
+        <MudTd>@TaxTreatmentName(context.TaxTreatment)</MudTd>
+        <MudTd>@OwnersCell(context)</MudTd>
+        <MudTd>@UsdMoney(context.CurrentBalance)</MudTd>
         <MudTd>
             <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Warning" OnClick="@(() => Open(context))" />
             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="MudBlazor.Color.Error" OnClick="@(() => Delete(context))" />
@@ -26,38 +59,46 @@
     </RowTemplate>
 </MudTable>
 
-<MudDialog @bind-Visible="_dialogOpen">
+<MudDialog @bind-Visible="_dialogOpen" Options="_dialogOptions" Class="ff-assets-edit-dialog">
     <TitleContent><MudText Typo="Typo.h6">@(_editId is null ? "Add" : "Edit") account</MudText></TitleContent>
     <DialogContent>
         <MudTextField @bind-Value="_name" Label="Account name" Class="mb-2" />
         <MudTextField @bind-Value="_institution" Label="Financial institution" Class="mb-2" />
-        <MudSelect T="Guid" @bind-Value="_categoryId" Label="Category" Class="mb-2">
+        @* MudSelect relies on MudPopover; native InputSelect avoids popover/stacking issues inside dialogs. *@
+        <label class="ff-dialog-select-label" for="ff-assets-category">Category</label>
+        <InputSelect id="ff-assets-category" @bind-Value="_categoryId" Class="ff-dialog-select">
             @foreach (var c in _categories)
             {
-                <MudSelectItem T="Guid" Value="@c.Id">@c.Name</MudSelectItem>
+                <option value="@c.Id">@c.Name</option>
             }
-        </MudSelect>
-        <MudSelect T="int" @bind-Value="_assetClass" Label="Asset class" Class="mb-2">
-            <MudSelectItem T="int" Value="0">Liquid</MudSelectItem>
-            <MudSelectItem T="int" Value="1">Semi-liquid (e.g., real estate)</MudSelectItem>
-        </MudSelect>
-        <MudSelect T="int" @bind-Value="_tax" Label="Tax treatment" Class="mb-2">
-            <MudSelectItem T="int" Value="0">Pre-tax</MudSelectItem>
-            <MudSelectItem T="int" Value="1">Roth</MudSelectItem>
-            <MudSelectItem T="int" Value="2">Taxable</MudSelectItem>
-            <MudSelectItem T="int" Value="3">HSA</MudSelectItem>
-            <MudSelectItem T="int" Value="4">Education</MudSelectItem>
-        </MudSelect>
-        <MudNumericField @bind-Value="_balance" Label="Balance" Format="C" Class="mb-2" />
-        <MudText Typo="Typo.subtitle2" Class="mb-1">Owners (percent must sum to 100)</MudText>
-        @foreach (var m in _members)
-        {
-            <MudNumericField T="decimal" Value="@OwnerPct(m.Id)" ValueChanged="@(v => SetOwnerPct(m.Id, v))"
-                             Label="@m.Name" Class="mb-1" />
-        }
+        </InputSelect>
+        <label class="ff-dialog-select-label" for="ff-assets-assetclass">Asset class</label>
+        <InputSelect id="ff-assets-assetclass" @bind-Value="_assetClass" Class="ff-dialog-select">
+            <option value="0">Liquid</option>
+            <option value="1">Semi-liquid (e.g., real estate)</option>
+        </InputSelect>
+        <label class="ff-dialog-select-label" for="ff-assets-tax">Tax treatment</label>
+        <InputSelect id="ff-assets-tax" @bind-Value="_tax" Class="ff-dialog-select">
+            <option value="0">Pre-tax</option>
+            <option value="1">Roth</option>
+            <option value="2">Taxable</option>
+            <option value="3">HSA</option>
+            <option value="4">Education</option>
+        </InputSelect>
+        <MudNumericField @bind-Value="_balance" Label="Balance" Format="C2" Culture="@UiMoney.Usd" Class="mb-2 ff-input-select-all" />
+        <label class="ff-dialog-select-label" for="ff-assets-owner">Owner</label>
+        <InputSelect id="ff-assets-owner" @bind-Value="_ownerMemberId" Class="ff-dialog-select">
+            @foreach (var m in _members)
+            {
+                <option value="@m.Id">@m.Name</option>
+            }
+        </InputSelect>
+        <MudText Typo="Typo.caption" Class="mud-text-secondary mb-2">
+            Account balance is attributed to this household member (100%).
+        </MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="@(() => _dialogOpen = false)">Cancel</MudButton>
+        <MudButton OnClick="@CloseDialog" title="Closes the form without saving">Cancel</MudButton>
         <MudButton Color="MudBlazor.Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
     </DialogActions>
 </MudDialog>

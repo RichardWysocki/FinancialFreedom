@@ -24,6 +24,6 @@
 @if (_scenario is not null)
 {
     <MudAlert Severity="Severity.Success" Class="mb-2">
-        Scenario replacement @(_scenario.ReplacementPercent)% — total income @(_scenario.EstimatedTotalRetirementIncome.ToString("C"))
+        Scenario replacement @(_scenario.ReplacementPercent)% — total income @UiMoney.Format(_scenario.EstimatedTotalRetirementIncome)
     </MudAlert>
 }

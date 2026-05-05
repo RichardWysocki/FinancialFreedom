@@ -33,7 +33,7 @@ public class FamilyMembersController(AppDbContext db) : HouseholdControllerBase(
 
         var adults = await db.FamilyMembers.CountAsync(m => m.HouseholdId == h.Id && m.Type == FamilyMemberType.Adult, cancellationToken);
         if (body.Type == (int)FamilyMemberType.Adult && adults >= 2)
-            return BadRequest("A maximum of two adults is allowed per household.");
+            return BadRequest(new ApiErrorResponse { Message = "A maximum of two adults is allowed per household." });
 
         var m = new FamilyMember
         {
@@ -76,7 +76,7 @@ public class FamilyMembersController(AppDbContext db) : HouseholdControllerBase(
         {
             var otherAdults = await db.FamilyMembers.CountAsync(x => x.HouseholdId == h.Id && x.Type == FamilyMemberType.Adult && x.Id != m.Id, cancellationToken);
             if (otherAdults >= 2)
-                return BadRequest("A maximum of two adults is allowed per household.");
+                return BadRequest(new ApiErrorResponse { Message = "A maximum of two adults is allowed per household." });
         }
 
         m.Name = body.Name.Trim();

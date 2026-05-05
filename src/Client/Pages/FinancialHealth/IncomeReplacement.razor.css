@@ -1,0 +1,213 @@
+.ff-ir-page {
+    max-width: 1200px;
+    margin-inline: auto;
+}
+
+.ff-ir-title {
+    letter-spacing: -0.02em;
+}
+
+.ff-ir-tabs {
+    border-radius: 10px;
+}
+
+.ff-ir-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ff-ir-table tbody tr td {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.ff-ir-row--muted .text-end {
+    font-variant-numeric: tabular-nums;
+}
+
+.ff-ir-row--accent {
+    background: rgba(76, 175, 80, 0.08);
+}
+
+.ff-ir-row--accent .text-end {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.ff-ir-row--total {
+    background: rgba(89, 74, 226, 0.07);
+}
+
+.ff-ir-row--total .text-end {
+    color: var(--mud-palette-primary, #594ae2);
+    font-weight: 700;
+}
+
+.ff-ir-stop-card {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, transparent 55%);
+}
+
+.ff-ir-stoplight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.ff-ir-light {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    opacity: 0.22;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    border: 2px solid rgba(0, 0, 0, 0.12);
+}
+
+.ff-ir-light--red {
+    background: radial-gradient(circle at 30% 25%, #ffcdd2, #e53935);
+}
+
+.ff-ir-light--amber {
+    background: radial-gradient(circle at 30% 25%, #ffe0b2, #fb8c00);
+}
+
+.ff-ir-light--green {
+    background: radial-gradient(circle at 30% 25%, #c8e6c9, #43a047);
+}
+
+.ff-ir-light--on {
+    opacity: 1;
+    transform: scale(1.04);
+    box-shadow: 0 0 22px rgba(0, 0, 0, 0.2);
+}
+
+.ff-ir-light--green.ff-ir-light--on {
+    box-shadow: 0 0 28px rgba(67, 160, 71, 0.65);
+}
+
+.ff-ir-light--amber.ff-ir-light--on {
+    box-shadow: 0 0 26px rgba(251, 140, 0, 0.55);
+}
+
+.ff-ir-light--red.ff-ir-light--on {
+    box-shadow: 0 0 26px rgba(229, 57, 53, 0.55);
+}
+
+.ff-ir-chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.ff-ir-chart {
+    width: 100%;
+    min-width: 520px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.ff-ir-grid {
+    stroke: rgba(0, 0, 0, 0.06);
+    stroke-width: 1;
+}
+
+.ff-ir-line {
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 7 5;
+}
+
+.ff-ir-line--dad {
+    stroke: #00897b;
+}
+
+.ff-ir-line--mom {
+    stroke: #f4511e;
+}
+
+.ff-ir-line--all {
+    stroke: #3949ab;
+    stroke-width: 3;
+}
+
+.ff-ir-line--salary {
+    stroke-dasharray: 5 4;
+    opacity: 0.95;
+}
+
+.ff-ir-line--combined {
+    stroke: var(--mud-palette-primary, #594ae2);
+    stroke-width: 3.2;
+    stroke-dasharray: unset;
+}
+
+.ff-ir-ytick,
+.ff-ir-xtick {
+    font-size: 11px;
+    fill: rgba(0, 0, 0, 0.45);
+    font-weight: 500;
+}
+
+.ff-ir-legend .ff-ir-swatch {
+    width: 22px;
+    height: 4px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.ff-ir-swatch--dad {
+    background: #00897b;
+}
+
+.ff-ir-swatch--mom {
+    background: #f4511e;
+}
+
+.ff-ir-swatch--all {
+    background: #3949ab;
+}
+
+.ff-ir-swatch--combined {
+    background: var(--mud-palette-primary, #594ae2);
+}
+
+.ff-ir-footnote {
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.015);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ff-ir-row--accent {
+        background: rgba(129, 199, 132, 0.12);
+    }
+
+    .ff-ir-row--accent .text-end {
+        color: #a5d6a7;
+    }
+
+    .ff-ir-row--total {
+        background: rgba(179, 171, 255, 0.1);
+    }
+
+    .ff-ir-stoplight {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .ff-ir-light {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .ff-ir-grid {
+        stroke: rgba(255, 255, 255, 0.08);
+    }
+
+    .ff-ir-ytick,
+    .ff-ir-xtick {
+        fill: rgba(255, 255, 255, 0.5);
+    }
+}

@@ -29,6 +29,9 @@ public sealed record HouseholdProjectionInput(
 
 public sealed record YearBalancePoint(int Year, string SeriesName, decimal Balance);
 
+/// <summary>Per-member annual salary while still working (0 after retirement age).</summary>
+public sealed record YearSalaryPoint(int Year, string Name, decimal AnnualSalary);
+
 public sealed record IncomeReplacementOutput(
     decimal EstimatedFutureFamilySalary,
     decimal AnnualRetirementContributions,
@@ -42,4 +45,5 @@ public sealed record IncomeReplacementOutput(
     decimal EstimatedTotalRetirementIncome,
     decimal ReplacementPercent,
     int TrafficLight,
-    IReadOnlyList<YearBalancePoint> ChartPoints);
+    IReadOnlyList<YearBalancePoint> ChartPoints,
+    IReadOnlyList<YearSalaryPoint> SalaryPoints);

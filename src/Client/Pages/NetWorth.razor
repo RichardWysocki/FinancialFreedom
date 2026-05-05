@@ -12,10 +12,10 @@ else
 {
     <MudPaper Class="pa-4 mb-4" Elevation="1">
         <MudText>As of <strong>@_nw.AsOfDate.ToString("d")</strong></MudText>
-        <MudText>Total assets: <strong>@_nw.TotalAssets.ToString("C")</strong></MudText>
-        <MudText>Total liabilities: <strong>@_nw.TotalLiabilities.ToString("C")</strong></MudText>
-        <MudText>Net worth (liquid − liabilities − goals): <strong>@_nw.NetWorthLiquid.ToString("C")</strong></MudText>
-        <MudText>Including semi-liquid (e.g. real estate equity): <strong>@_nw.NetWorthIncludingRealEstate.ToString("C")</strong></MudText>
+        <MudText>Total assets: <strong>@UiMoney.Format(_nw.TotalAssets)</strong></MudText>
+        <MudText>Total liabilities: <strong>@UiMoney.Format(_nw.TotalLiabilities)</strong></MudText>
+        <MudText>Net worth (liquid − liabilities − goals): <strong>@UiMoney.Format(_nw.NetWorthLiquid)</strong></MudText>
+        <MudText>Including semi-liquid (e.g. real estate equity): <strong>@UiMoney.Format(_nw.NetWorthIncludingRealEstate)</strong></MudText>
     </MudPaper>
 
     <MudText Typo="Typo.subtitle1" Class="mb-2">Liquid assets</MudText>
@@ -29,7 +29,7 @@ else
         <RowTemplate>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.Category</MudTd>
-            <MudTd style="text-align:right">@context.Amount.ToString("C")</MudTd>
+            <MudTd style="text-align:right">@UiMoney.Format(context.Amount)</MudTd>
             <MudTd style="text-align:right">@context.PercentOfTotal %</MudTd>
         </RowTemplate>
     </MudTable>

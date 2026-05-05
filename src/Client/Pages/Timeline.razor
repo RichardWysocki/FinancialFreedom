@@ -23,7 +23,7 @@ else
         <RowTemplate>
             <MudTd>@context.Date.ToString("d")</MudTd>
             <MudTd>@context.CategoryName</MudTd>
-            <MudTd style="text-align:right">@context.Amount.ToString("C")</MudTd>
+            <MudTd style="text-align:right">@UiMoney.Format(context.Amount)</MudTd>
         </RowTemplate>
     </MudTable>
 }

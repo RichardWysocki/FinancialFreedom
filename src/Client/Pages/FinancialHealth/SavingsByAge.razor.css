@@ -1,0 +1,197 @@
+.ff-sba-page {
+    max-width: 1200px;
+    margin-inline: auto;
+}
+
+.ff-sba-title {
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+}
+
+.ff-sba-subtitle {
+    margin-bottom: 1rem;
+    max-width: 48rem;
+}
+
+.ff-sba-tabs {
+    border-radius: 10px;
+    background: var(--mud-palette-surface, #fff);
+}
+
+.ff-sba-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ff-sba-highlight {
+    border-radius: 10px;
+    background: rgba(89, 74, 226, 0.06);
+    border: 1px solid rgba(89, 74, 226, 0.12);
+}
+
+.ff-sba-why {
+    margin-top: 0.5rem;
+}
+
+.ff-sba-gauge-card {
+    background: linear-gradient(180deg, rgba(89, 74, 226, 0.04) 0%, transparent 42%);
+}
+
+.ff-sba-gauge-wrap {
+    width: 100%;
+    max-width: 280px;
+    margin-inline: auto;
+}
+
+.ff-sba-gauge {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.ff-sba-arc {
+    stroke-width: 17;
+    fill: none;
+}
+
+.ff-sba-arc--red {
+    stroke: #e53935;
+}
+
+.ff-sba-arc--amber {
+    stroke: #fb8c00;
+}
+
+.ff-sba-arc--green {
+    stroke: #43a047;
+}
+
+.ff-sba-needle {
+    stroke: #1a1a1a;
+    stroke-width: 2.5;
+}
+
+.ff-sba-hub {
+    fill: var(--mud-palette-primary, #594ae2);
+    stroke: #fff;
+    stroke-width: 2;
+}
+
+.ff-sba-gauge-label {
+    font-size: 11px;
+    font-weight: 600;
+    fill: rgba(0, 0, 0, 0.45);
+}
+
+.ff-sba-alert {
+    max-width: 100%;
+}
+
+.ff-sba-milestone-card {
+    margin-top: 0.5rem;
+}
+
+.ff-sba-milestones {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 0.35rem;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+}
+
+.ff-sba-milestone {
+    flex: 1 1 0;
+    min-width: 3.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.ff-sba-milestone-bubble {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mud-palette-surface, #fff);
+    border: 2px solid rgba(89, 74, 226, 0.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ff-sba-milestone--hit .ff-sba-milestone-bubble {
+    border-color: var(--mud-palette-primary, #594ae2);
+    box-shadow: 0 4px 14px rgba(89, 74, 226, 0.25);
+    transform: translateY(-2px);
+}
+
+.ff-sba-milestone-mult {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--mud-palette-primary, #594ae2);
+    line-height: 1.1;
+}
+
+.ff-sba-milestone-stem {
+    flex: 1 1 1.25rem;
+    width: 2px;
+    min-height: 1.25rem;
+    margin: 4px 0;
+    background: linear-gradient(180deg, rgba(89, 74, 226, 0.45), rgba(0, 0, 0, 0.12));
+    border-radius: 2px;
+}
+
+.ff-sba-milestone--hit .ff-sba-milestone-stem {
+    background: linear-gradient(180deg, var(--mud-palette-primary, #594ae2), rgba(89, 74, 226, 0.35));
+}
+
+.ff-sba-milestone-age {
+    width: 100%;
+    max-width: 4.5rem;
+    padding: 0.35rem 0.2rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(90deg, #2e7d32, #66bb6a);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.ff-sba-milestone--hit .ff-sba-milestone-age {
+    background: linear-gradient(90deg, var(--mud-palette-primary, #594ae2), #7e57c2);
+}
+
+.ff-sba-legend {
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ff-sba-highlight {
+        background: rgba(179, 171, 255, 0.08);
+        border-color: rgba(179, 171, 255, 0.18);
+    }
+
+    .ff-sba-needle {
+        stroke: #f0f0f0;
+    }
+
+    .ff-sba-gauge-label {
+        fill: rgba(255, 255, 255, 0.55);
+    }
+
+    .ff-sba-milestone-bubble {
+        background: var(--mud-palette-surface, #1e1e1e);
+        border-color: rgba(179, 171, 255, 0.35);
+    }
+
+    .ff-sba-milestone-stem {
+        background: linear-gradient(180deg, rgba(179, 171, 255, 0.5), rgba(255, 255, 255, 0.12));
+    }
+}

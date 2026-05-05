@@ -69,6 +69,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(x => x.CompanyMatchPercent).HasPrecision(9, 4);
             e.Property(x => x.CompanyMatchEndsAtSalaryPercent).HasPrecision(9, 4);
             e.Property(x => x.SocialSecurityMonthlyBenefit).HasPrecision(18, 2);
+            e.Property(x => x.ProjectedSocialSecurityMonthlyBenefit).HasPrecision(18, 2);
             e.HasOne(x => x.FamilyMember)
                 .WithOne(m => m.RetirementProfile)
                 .HasForeignKey<RetirementProfile>(x => x.FamilyMemberId)
