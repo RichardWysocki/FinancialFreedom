@@ -1,57 +1,185 @@
 @page "/financial-health/income-replacement"
 
 <PageTitle>Income Replacement</PageTitle>
-<MudText Typo="Typo.h5" Class="mb-3">Income Replacement Planning</MudText>
 
-@if (_data is null && _error is null)
-{
-    <MudProgressLinear Indeterminate="true" />
-}
-else if (_error is not null)
-{
-    <MudAlert Severity="Severity.Error">@_error</MudAlert>
-}
-else if (_data is not null)
-{
-    <MudGrid Class="mb-4">
-        <MudItem xs="12" md="8">
-            <MudSimpleTable Dense="true" Striped="true" Bordered="true">
-                <tbody>
-                <tr><td>Estimated future family salary</td><td style="text-align:right">@_data.EstimatedFutureFamilySalary.ToString("C")</td></tr>
-                <tr><td>Annual retirement contributions</td><td style="text-align:right">@_data.AnnualRetirementContributions.ToString("C")</td></tr>
-                <tr><td>Annual health savings contributions</td><td style="text-align:right">@_data.AnnualHealthSavingsContributions.ToString("C")</td></tr>
-                <tr><td><strong>Estimated replacement salary (future − contributions)</strong></td><td style="text-align:right"><strong>@_data.EstimatedReplacementAnnualSalary.ToString("C")</strong></td></tr>
-                <tr><td>Future retirement savings (approx.)</td><td style="text-align:right">@_data.FutureRetirementSavingsApprox.ToString("C")</td></tr>
-                <tr><td>Retirement withdrawal (per withdrawal-rate assumption)</td><td style="text-align:right">@_data.RetirementWithdrawAnnual.ToString("C")</td></tr>
-                <tr><td>Future HSA (approx.)</td><td style="text-align:right">@_data.FutureHealthSavingsApprox.ToString("C")</td></tr>
-                <tr><td>HSA annual withdrawal (over retirement years)</td><td style="text-align:right">@_data.HealthWithdrawAnnual.ToString("C")</td></tr>
-                <tr><td>Estimated Social Security (annual)</td><td style="text-align:right">@_data.EstimatedSocialSecurityAnnual.ToString("C")</td></tr>
-                <tr><td><strong>Total estimated income</strong></td><td style="text-align:right"><strong>@_data.EstimatedTotalRetirementIncome.ToString("C")</strong></td></tr>
-                </tbody>
-            </MudSimpleTable>
-        </MudItem>
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4 text-center" Elevation="2">
-                <MudText Typo="Typo.subtitle1">Replacement vs. target</MudText>
-                <MudText Typo="Typo.h4" Color="@TrafficColor">@_data.ReplacementPercent %</MudText>
-                <MudText Typo="Typo.body2">Traffic light: @_data.TrafficLight (0 red, 1 yellow, 2 green)</MudText>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+<div class="ff-ir-page">
+    <MudText Typo="Typo.h4" Class="ff-ir-title">Income replacement planning</MudText>
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-4">
+        See whether projected retirement income (withdrawals, HSA, Social Security) lines up with the lifestyle implied by your future working‑year salary.
+    </MudText>
 
-    <MudText Typo="Typo.subtitle1" Class="mb-2">Projected retirement balances by year</MudText>
-    <MudTable Items="_data.ChartPoints" Dense="true" Hover="true" Striped="true">
-        <HeaderContent>
-            <MudTh>Year</MudTh>
-            <MudTh>Dad</MudTh>
-            <MudTh>Mom</MudTh>
-            <MudTh>All</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Year</MudTd>
-            <MudTd>@context.DadBalance.ToString("C")</MudTd>
-            <MudTd>@context.MomBalance.ToString("C")</MudTd>
-            <MudTd>@context.AllBalance.ToString("C")</MudTd>
-        </RowTemplate>
-    </MudTable>
-}
+    <MudPaper Class="ff-ir-tabs pa-2 mb-5" Elevation="0" Outlined="true">
+        <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center">
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/savings-by-age">Savings by Age</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Href="/financial-health/income-replacement">Income Replacement</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/wealth-withdrawal">Wealth Withdrawal</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/emergency">Emergency Fund</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/current">Current Financial</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    @if (_data is null && _error is null)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+    else if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+    }
+    else if (_data is not null)
+    {
+        <MudGrid Spacing="4" Class="mb-6">
+            <MudItem xs="12" lg="8">
+                <MudCard Elevation="2" Outlined="true" Class="ff-ir-card">
+                    <MudCardContent Class="pa-0">
+                        <MudSimpleTable Dense="true" Class="ff-ir-table" Bordered="false">
+                            <tbody>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Estimated future family salary</td>
+                                <td class="text-end">@UiMoney.Format(_data.EstimatedFutureFamilySalary)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Annual retirement contributions</td>
+                                <td class="text-end">@UiMoney.Format(_data.AnnualRetirementContributions)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Annual health savings contributions</td>
+                                <td class="text-end">@UiMoney.Format(_data.AnnualHealthSavingsContributions)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--accent">
+                                <td><strong>Estimated replacement salary (future − contributions)</strong></td>
+                                <td class="text-end"><strong>@UiMoney.Format(_data.EstimatedReplacementAnnualSalary)</strong></td>
+                            </tr>
+                            <tr><td colspan="2" class="pa-0"><MudDivider /></td></tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Future retirement savings (approx.)</td>
+                                <td class="text-end">@UiMoney.Format(_data.FutureRetirementSavingsApprox)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Retirement withdrawal (per withdrawal-rate assumption)</td>
+                                <td class="text-end">@UiMoney.Format(_data.RetirementWithdrawAnnual)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Future HSA (approx.)</td>
+                                <td class="text-end">@UiMoney.Format(_data.FutureHealthSavingsApprox)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>HSA annual withdrawal (over retirement years)</td>
+                                <td class="text-end">@UiMoney.Format(_data.HealthWithdrawAnnual)</td>
+                            </tr>
+                            <tr class="ff-ir-row ff-ir-row--muted">
+                                <td>Estimated Social Security (annual)</td>
+                                <td class="text-end">@UiMoney.Format(_data.EstimatedSocialSecurityAnnual)</td>
+                            </tr>
+                            <tr><td colspan="2" class="pa-0"><MudDivider /></td></tr>
+                            <tr class="ff-ir-row ff-ir-row--total">
+                                <td><strong>Total estimated income (retirement, HSA &amp; Social Security)</strong></td>
+                                <td class="text-end"><strong>@UiMoney.Format(_data.EstimatedTotalRetirementIncome)</strong></td>
+                            </tr>
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" lg="4">
+                <MudCard Elevation="2" Outlined="true" Class="ff-ir-card ff-ir-stop-card h-100">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <div class="ff-ir-stoplight" role="img" aria-label="Replacement status indicator">
+                            <div class="ff-ir-light ff-ir-light--red @(_data.TrafficLight == 0 ? "ff-ir-light--on" : "")"></div>
+                            <div class="ff-ir-light ff-ir-light--amber @(_data.TrafficLight == 1 ? "ff-ir-light--on" : "")"></div>
+                            <div class="ff-ir-light ff-ir-light--green @(_data.TrafficLight == 2 ? "ff-ir-light--on" : "")"></div>
+                        </div>
+                        <MudText Typo="Typo.subtitle1" Class="mt-4 mb-1">Replacement vs. target</MudText>
+                        <MudText Typo="Typo.h3" Color="@TrafficColor">@_data.ReplacementPercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mt-2 text-center">@TrafficHeadline</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2 text-center">@TrafficDetail</MudText>
+                        <MudDivider Class="my-4 align-self-stretch" />
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-center">
+                            Green ≥ @_data.ReplacementGreenThresholdPercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)% ·
+                            Yellow ≥ @_data.ReplacementYellowThresholdPercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <MudCard Elevation="2" Outlined="true" Class="ff-ir-card mb-5">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Future retirement savings (projected balances)</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Each line uses retirement return <strong>@_data.RetirementReturnPercentAssumed.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%</strong> from Generic Settings,
+                        member contributions &amp; match rules, and IRS deferral limits by year.
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <div class="ff-ir-chart-wrap">
+                    @BalanceChartSvg
+                </div>
+                <MudStack Row="true" Spacing="3" Justify="Justify.Center" Class="mt-3 ff-ir-legend" Wrap="Wrap.Wrap">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center"><span class="ff-ir-swatch ff-ir-swatch--all"></span><MudText Typo="Typo.caption">All</MudText></MudStack>
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center"><span class="ff-ir-swatch ff-ir-swatch--dad"></span><MudText Typo="Typo.caption">Dad</MudText></MudStack>
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center"><span class="ff-ir-swatch ff-ir-swatch--mom"></span><MudText Typo="Typo.caption">Mom</MudText></MudStack>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+
+        <MudCard Elevation="2" Outlined="true" Class="ff-ir-card mb-5">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Household salary while working</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Salaries grow using each member’s <strong>estimated raise %</strong> from Retirement Settings until their retirement age.
+                        Inflation in Generic Settings (<strong>@_data.InflationRatePercentAssumed.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%</strong>) is not applied to these salary steps yet — it affects other projections (e.g. SS) elsewhere.
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <div class="ff-ir-chart-wrap">
+                    @SalaryChartSvg
+                </div>
+                <MudStack Row="true" Spacing="3" Justify="Justify.Center" Class="mt-3 ff-ir-legend" Wrap="Wrap.Wrap">
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center"><span class="ff-ir-swatch ff-ir-swatch--combined"></span><MudText Typo="Typo.caption">Combined</MudText></MudStack>
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center"><span class="ff-ir-swatch ff-ir-swatch--dad"></span><MudText Typo="Typo.caption">Dad salary</MudText></MudStack>
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center"><span class="ff-ir-swatch ff-ir-swatch--mom"></span><MudText Typo="Typo.caption">Mom salary</MudText></MudStack>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+
+        <MudExpansionPanels Class="mb-6">
+            <MudExpansionPanel Text="Year-by-year numbers (table)">
+                <MudTable Items="_data.ChartPoints" Dense="true" Hover="true" Striped="true" Breakpoint="Breakpoint.Sm" HorizontalScrollbar="true">
+                    <HeaderContent>
+                        <MudTh>Year</MudTh>
+                        <MudTh class="text-end">Dad salary</MudTh>
+                        <MudTh class="text-end">Mom salary</MudTh>
+                        <MudTh class="text-end">Combined salary</MudTh>
+                        <MudTh class="text-end">Dad balance</MudTh>
+                        <MudTh class="text-end">Mom balance</MudTh>
+                        <MudTh class="text-end">All balance</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Year</MudTd>
+                        <MudTd class="text-end">@UiMoney.Format(context.DadSalary)</MudTd>
+                        <MudTd class="text-end">@UiMoney.Format(context.MomSalary)</MudTd>
+                        <MudTd class="text-end">@UiMoney.Format(context.CombinedSalary)</MudTd>
+                        <MudTd class="text-end">@UiMoney.Format(context.DadBalance)</MudTd>
+                        <MudTd class="text-end">@UiMoney.Format(context.MomBalance)</MudTd>
+                        <MudTd class="text-end">@UiMoney.Format(context.AllBalance)</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+
+        <MudPaper Class="pa-4 ff-ir-footnote" Elevation="0" Outlined="true">
+            <MudText Typo="Typo.subtitle1" Class="mb-2">How are you doing?</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                This view compares a <strong>steady retirement income story</strong> (withdrawal rate on projected balances, HSA use, and Social Security entered in Retirement Settings)
+                to the <strong>cash you would have available while working</strong> after retirement and HSA contributions.
+                HSA balance projection uses <strong>@_data.HsaReturnPercentAssumed.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%</strong> return from Generic Settings.
+                It is educational, not a guarantee — markets, taxes, and careers will differ.
+            </MudText>
+        </MudPaper>
+    }
+</div>

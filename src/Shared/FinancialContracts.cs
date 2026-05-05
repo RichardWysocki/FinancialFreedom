@@ -96,7 +96,14 @@ public record SavingsByAgeResultDto(
     decimal TargetRetirementSavings,
     decimal SuccessRatePercent);
 
-public record IncomeReplacementLinePointDto(int Year, decimal DadBalance, decimal MomBalance, decimal AllBalance);
+public record IncomeReplacementLinePointDto(
+    int Year,
+    decimal DadBalance,
+    decimal MomBalance,
+    decimal AllBalance,
+    decimal DadSalary,
+    decimal MomSalary,
+    decimal CombinedSalary);
 
 public record IncomeReplacementResultDto(
     decimal EstimatedFutureFamilySalary,
@@ -111,6 +118,11 @@ public record IncomeReplacementResultDto(
     decimal EstimatedTotalRetirementIncome,
     decimal ReplacementPercent,
     int TrafficLight, // 0 red, 1 yellow, 2 green
+    decimal ReplacementGreenThresholdPercent,
+    decimal ReplacementYellowThresholdPercent,
+    decimal RetirementReturnPercentAssumed,
+    decimal HsaReturnPercentAssumed,
+    decimal InflationRatePercentAssumed,
     IReadOnlyList<IncomeReplacementLinePointDto> ChartPoints);
 
 public record NetWorthRowDto(

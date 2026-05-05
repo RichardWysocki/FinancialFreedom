@@ -85,7 +85,7 @@
             <option value="3">HSA</option>
             <option value="4">Education</option>
         </InputSelect>
-        <MudNumericField @bind-Value="_balance" Label="Balance" Format="C2" Culture="@Usd" Class="mb-2 ff-input-select-all" />
+        <MudNumericField @bind-Value="_balance" Label="Balance" Format="C2" Culture="@UiMoney.Usd" Class="mb-2 ff-input-select-all" />
         <label class="ff-dialog-select-label" for="ff-assets-owner">Owner</label>
         <InputSelect id="ff-assets-owner" @bind-Value="_ownerMemberId" Class="ff-dialog-select">
             @foreach (var m in _members)

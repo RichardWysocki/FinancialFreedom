@@ -12,6 +12,12 @@ namespace FinancialFreedom.Client.Pages.Settings;
 
 public partial class HealthSettings
 {
+    private static readonly DialogOptions _hsaDialogOptions = new()
+    {
+        MaxWidth = MaxWidth.ExtraLarge,
+        FullWidth = true,
+    };
+
     [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 

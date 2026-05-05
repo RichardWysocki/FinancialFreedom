@@ -16,7 +16,7 @@
         <MudNumericField T="int" @bind-Value="_model.RetirementAge" Label="Retirement age" Min="0" Max="120" />
     </MudItem>
     <MudItem xs="12" sm="6" md="4">
-        <MudNumericField T="decimal" @bind-Value="_model.CurrentSalary" Label="Current annual salary" Format="C" />
+        <MudNumericField T="decimal" @bind-Value="_model.CurrentSalary" Label="Current annual salary" Format="C2" Culture="@UiMoney.Usd" Class="ff-input-select-all" />
     </MudItem>
     <MudItem xs="12" sm="6" md="4">
         <MudNumericField T="decimal" @bind-Value="_model.AnnualIncreasePercent" Label="Salary increase per year (%)" Step="0.1m" />

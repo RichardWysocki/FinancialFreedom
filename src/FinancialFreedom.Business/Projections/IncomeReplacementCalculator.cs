@@ -10,7 +10,7 @@ public static class IncomeReplacementCalculator
 
         if (adults.Count == 0)
         {
-            return new IncomeReplacementOutput(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Array.Empty<YearBalancePoint>());
+            return new IncomeReplacementOutput(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Array.Empty<YearBalancePoint>(), Array.Empty<YearSalaryPoint>());
         }
 
         var oldest = adults.OrderByDescending(a => a.CurrentAge).First();
@@ -47,6 +47,7 @@ public static class IncomeReplacementCalculator
         var hr = input.HsaReturnPercentPerYear / 100m;
 
         var chartPoints = new List<YearBalancePoint>();
+        var salaryPoints = new List<YearSalaryPoint>();
 
         for (var year = startYear; year <= endYear; year++)
         {
@@ -61,9 +62,7 @@ public static class IncomeReplacementCalculator
 
                 if (age < a.RetirementAge)
                 {
-                    var salary = a.CurrentSalary;
-                    for (var i = 0; i < yearIndex; i++)
-                        salary *= 1 + a.SalaryIncreasePercentPerYear / 100m;
+                    var salary = SalaryWhileWorking(a, yearIndex);
 
                     var employee = salary * (a.ContributionPercentOfSalary / 100m);
                     var capSalary = salary * (a.CompanyMatchCapPercentOfSalary / 100m);
@@ -88,6 +87,7 @@ public static class IncomeReplacementCalculator
                 hsaBalances[a.Name] = hb;
 
                 chartPoints.Add(new YearBalancePoint(year, a.Name, rb));
+                salaryPoints.Add(new YearSalaryPoint(year, a.Name, SalaryWhileWorking(a, yearIndex)));
             }
 
             chartPoints.Add(new YearBalancePoint(year, "All", allRetirement));
@@ -122,6 +122,20 @@ public static class IncomeReplacementCalculator
             totalIncome,
             replacementPct,
             traffic,
-            chartPoints);
+            chartPoints,
+            salaryPoints);
+    }
+
+    /// <summary>Annual salary in the given calendar year of the projection (0 once member reaches retirement age).</summary>
+    private static decimal SalaryWhileWorking(AdultProjectionInput a, int yearIndex)
+    {
+        var age = a.CurrentAge + yearIndex;
+        if (age >= a.RetirementAge)
+            return 0m;
+
+        var salary = a.CurrentSalary;
+        for (var i = 0; i < yearIndex; i++)
+            salary *= 1 + a.SalaryIncreasePercentPerYear / 100m;
+        return salary;
     }
 }

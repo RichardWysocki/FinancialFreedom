@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using FinancialFreedom.Client;
 using FinancialFreedom.Shared;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -13,9 +14,6 @@ namespace FinancialFreedom.Client.Pages.Settings;
 
 public partial class RetirementSettings
 {
-    /// <summary>USD so salary fields show $ — invariant "C" shows ¤ (generic currency).</summary>
-    private static readonly CultureInfo Usd = CultureInfo.GetCultureInfo("en-US");
-
     private static readonly DialogOptions _editDialogOptions = new()
     {
         MaxWidth = MaxWidth.ExtraLarge,
@@ -86,7 +84,7 @@ public partial class RetirementSettings
     private string FutureSsHelperText =>
         $"At retirement (~{YearsToRetirementForDisplay} year(s) from now), using {InflationRatePercent.ToString("F2", CultureInfo.InvariantCulture)}% inflation from Generic Settings.";
 
-    private static string UsdMoney(decimal value) => value.ToString("C2", Usd);
+    private static string UsdMoney(decimal value) => UiMoney.Format(value);
 
     private static string PctOneDecimal(decimal value) => value.ToString("F1", CultureInfo.InvariantCulture);
 

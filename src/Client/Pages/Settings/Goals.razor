@@ -14,7 +14,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Name</MudTd>
-        <MudTd style="text-align:right">@context.TargetAmount.ToString("C")</MudTd>
+        <MudTd style="text-align:right">@UiMoney.Format(context.TargetAmount)</MudTd>
         <MudTd>@(context.TargetDate?.ToString("d") ?? "—")</MudTd>
         <MudTd>
             <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(() => Open(context))" />
@@ -26,7 +26,7 @@
 <MudDialog @bind-Visible="_dialog">
     <DialogContent>
         <MudTextField @bind-Value="_name" Label="Name" Class="mb-2" />
-        <MudNumericField @bind-Value="_amount" Label="Target amount" Format="C" Class="mb-2" />
+        <MudNumericField @bind-Value="_amount" Label="Target amount" Format="C2" Culture="@UiMoney.Usd" Class="mb-2 ff-input-select-all" />
         <MudDatePicker @bind-Date="_targetDate" Label="Target date" Class="mb-2" />
     </DialogContent>
     <DialogActions>

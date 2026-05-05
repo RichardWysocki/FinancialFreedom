@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using FinancialFreedom.Client;
 using FinancialFreedom.Shared;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -13,9 +14,6 @@ namespace FinancialFreedom.Client.Pages.Settings;
 
 public partial class FamilyAssets
 {
-    /// <summary>USD so Balance shows $ — invariant &quot;C&quot; yields ¤.</summary>
-    private static readonly CultureInfo Usd = CultureInfo.GetCultureInfo("en-US");
-
     private static readonly DialogOptions _dialogOptions = new()
     {
         MaxWidth = MaxWidth.ExtraLarge,
@@ -133,7 +131,7 @@ public partial class FamilyAssets
         return t > 0 ? (double)(s.Amount / t * 100m) : 0;
     }
 
-    private static string UsdMoney(decimal value) => value.ToString("C2", Usd);
+    private static string UsdMoney(decimal value) => UiMoney.Format(value);
 
     private void CloseDialog() => _dialogOpen = false;
 

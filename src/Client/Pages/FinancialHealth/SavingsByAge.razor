@@ -2,32 +2,154 @@
 
 <PageTitle>Savings by Age</PageTitle>
 
-<MudText Typo="Typo.h5" Class="mb-2">Are you saving enough — savings factor by age</MudText>
+<div class="ff-sba-page">
+    <MudText Typo="Typo.h4" Class="ff-sba-title">Are you saving enough?</MudText>
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="ff-sba-subtitle">
+        Savings factor by age — a simple guideline for retirement savings vs. salary
+    </MudText>
 
-@if (_result is null && _error is null)
-{
-    <MudProgressLinear Indeterminate="true" />
-}
-else if (_error is not null)
-{
-    <MudAlert Severity="Severity.Warning">@_error</MudAlert>
-}
-else if (_result is not null)
-{
-    <MudGrid>
-        <MudItem xs="12" md="7">
-            <MudPaper Class="pa-4" Elevation="1">
-                <MudText>For age group factor <strong>@_result.SavingFactorMultiple×</strong> salary, target retirement savings is <strong>@_result.TargetRetirementSavings.ToString("C")</strong> based on combined salary <strong>@_result.CombinedSalary.ToString("C")</strong>.</MudText>
-                <MudText Class="mt-2">Current retirement assets: <strong>@_result.CurrentRetirementAssets.ToString("C")</strong></MudText>
-                <MudText Class="mt-2">Oldest adult age (Jan 1 basis): <strong>@_result.OldestAdultAge</strong></MudText>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="5">
-            <MudPaper Class="pa-4 d-flex flex-column align-center" Elevation="1">
-                <MudText Typo="Typo.h6" Class="mb-2">Success rate</MudText>
-                <MudProgressCircular Color="MudBlazor.Color.Success" Size="Size.Large" Value="@((double)_result.SuccessRatePercent)" />
-                <MudText Class="mt-2">@_result.SuccessRatePercent % of target</MudText>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-}
+    <MudPaper Class="ff-sba-tabs pa-2 mb-5" Elevation="0" Outlined="true">
+        <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Href="/financial-health/savings-by-age">Savings by Age</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/income-replacement">Income Replacement</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/wealth-withdrawal">Wealth Withdrawal</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/emergency">Emergency Fund</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Href="/financial-health/current">Current Financial</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    @if (_result is null && _error is null)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-4" />
+    }
+    else if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Warning" Class="mb-4">@_error</MudAlert>
+    }
+    else if (_result is not null)
+    {
+        <MudGrid Class="mb-6" Spacing="4">
+            <MudItem xs="12" lg="7">
+                <MudCard Class="ff-sba-card h-100" Elevation="2" Outlined="true">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">How this guideline works</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                Industry rules of thumb (like age-based multiples of salary) are not personalized advice — they help you ask the right questions and see whether you are broadly on track.
+                            </MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.body1" Class="mb-4">
+                            We compare your household’s <strong>retirement-account balances</strong> to a <strong>target multiple of combined salary</strong>
+                            chosen from your oldest adult’s age. The multiple steps up at the milestones below (through a typical retirement age of 67).
+                        </MudText>
+
+                        <MudPaper Class="pa-4 mb-4 ff-sba-highlight" Elevation="0">
+                            <MudText Typo="Typo.body1">
+                                For your age group, the guideline multiple is <strong>@FormatFactor(_result.SavingFactorMultiple)×</strong> salary.
+                                That implies target retirement savings of <strong>@UiMoney.Format(_result.TargetRetirementSavings)</strong>
+                                based on combined salary <strong>@UiMoney.Format(_result.CombinedSalary)</strong>.
+                            </MudText>
+                            <MudDivider Class="my-3" />
+                            <MudStack Spacing="2">
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline" Wrap="Wrap.Wrap">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Oldest adult (Jan 1 basis)</MudText>
+                                    <MudText Typo="Typo.body1"><strong>@_result.OldestAdultAge</strong> years</MudText>
+                                </MudStack>
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline" Wrap="Wrap.Wrap">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Current retirement assets</MudText>
+                                    <MudText Typo="Typo.body1"><strong>@UiMoney.Format(_result.CurrentRetirementAssets)</strong></MudText>
+                                </MudStack>
+                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline" Wrap="Wrap.Wrap">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">Guideline target (multiple × salary)</MudText>
+                                    <MudText Typo="Typo.body1"><strong>@UiMoney.Format(_result.TargetRetirementSavings)</strong></MudText>
+                                </MudStack>
+                            </MudStack>
+                        </MudPaper>
+
+                        <MudExpansionPanels Class="ff-sba-why">
+                            <MudExpansionPanel Text="Why use age-based multiples?">
+                                <MudText Typo="Typo.body2">
+                                    Saving a steady fraction of income is easier to stick to when you know rough checkpoints.
+                                    These multiples assume you invest for growth early and taper risk toward retirement — your plan may differ.
+                                    Use this screen alongside Income Replacement and your real cash flow.
+                                </MudText>
+                            </MudExpansionPanel>
+                        </MudExpansionPanels>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="5">
+                <MudCard Class="ff-sba-card ff-sba-gauge-card h-100" Elevation="2" Outlined="true">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudText Typo="Typo.h6" Class="mb-1">Success vs. guideline</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-4 text-center">
+                            Gauge shows 0–100%; your full percentage is always shown below.
+                        </MudText>
+
+                        <div class="ff-sba-gauge-wrap" role="img" aria-label="Success rate gauge from 0 to 100 percent">
+                            <svg class="ff-sba-gauge" viewBox="0 0 240 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path class="ff-sba-arc ff-sba-arc--red" d="@GaugeArcPath(GaugeCx, GaugeCy, GaugeR, 0, 30)" fill="none" stroke-linecap="round" />
+                                <path class="ff-sba-arc ff-sba-arc--amber" d="@GaugeArcPath(GaugeCx, GaugeCy, GaugeR, 30, 60)" fill="none" stroke-linecap="round" />
+                                <path class="ff-sba-arc ff-sba-arc--green" d="@GaugeArcPath(GaugeCx, GaugeCy, GaugeR, 60, 100)" fill="none" stroke-linecap="round" />
+                                <path class="ff-sba-needle" d="@NeedleLine(GaugeCx, GaugeCy, GaugeR, (double)_result.SuccessRatePercent)" fill="none" stroke-linecap="round" />
+                                <circle class="ff-sba-hub" cx="@F(GaugeCx)" cy="@F(GaugeCy)" r="6" />
+                                <text x="14" y="128" class="ff-sba-gauge-label">0</text>
+                                <text x="210" y="128" class="ff-sba-gauge-label">100%</text>
+                            </svg>
+                        </div>
+
+                        <MudText Typo="Typo.h3" Color="@SuccessMudColor(_result.SuccessRatePercent)" Class="mt-2">
+                            @_result.SuccessRatePercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)%
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="text-center mb-3">
+                            of the age-based guideline target.
+                            @if (_result.SuccessRatePercent > 100)
+                            {
+                                <span>The needle rests at the end of the 0–100 scale; the figure above is your full result.</span>
+                            }
+                        </MudText>
+
+                        <MudAlert Severity="@(_result.SuccessRatePercent >= 100 ? Severity.Success : _result.SuccessRatePercent >= 60 ? Severity.Info : _result.SuccessRatePercent >= 30 ? Severity.Warning : Severity.Error)"
+                                  Dense="true" Variant="Variant.Text" Class="ff-sba-alert">
+                            @SuccessLabel(_result.SuccessRatePercent)
+                        </MudAlert>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <MudCard Class="ff-sba-card ff-sba-milestone-card" Elevation="2" Outlined="true">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Savings factors along the journey</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Save “×” your salary by these ages — guideline milestones used in this app (reference table).
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <div class="ff-sba-milestones" role="list">
+                    @foreach (var step in _ladder)
+                    {
+                        var hit = _result.OldestAdultAge >= step.Age;
+                        <div class="ff-sba-milestone @(hit ? "ff-sba-milestone--hit" : "")" role="listitem">
+                            <div class="ff-sba-milestone-bubble">
+                                <span class="ff-sba-milestone-mult">@FormatFactor(step.Multiple)×</span>
+                            </div>
+                            <div class="ff-sba-milestone-stem"></div>
+                            <div class="ff-sba-milestone-age">@step.Age</div>
+                        </div>
+                    }
+                </div>
+                <MudDivider Class="my-4" />
+                <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="ff-sba-legend">
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Your age passed</MudChip>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Highlighted columns are at or below your oldest adult’s age.</MudText>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    }
+</div>

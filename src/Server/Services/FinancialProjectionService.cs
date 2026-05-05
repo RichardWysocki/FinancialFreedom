@@ -145,13 +145,18 @@ public class FinancialProjectionService(AppDbContext db) : IFinancialProjectionS
         var output = IncomeReplacementCalculator.Compute(hpInput, irs);
 
         var byYear = output.ChartPoints.GroupBy(p => p.Year).OrderBy(g => g.Key);
+        var salaryByYear = output.SalaryPoints.GroupBy(p => p.Year).ToDictionary(g => g.Key, g => g.ToList());
         var linePoints = new List<IncomeReplacementLinePointDto>();
         foreach (var g in byYear)
         {
             decimal dad = g.FirstOrDefault(x => x.SeriesName.Equals("Dad", StringComparison.OrdinalIgnoreCase))?.Balance ?? 0;
             decimal mom = g.FirstOrDefault(x => x.SeriesName.Equals("Mom", StringComparison.OrdinalIgnoreCase))?.Balance ?? 0;
             var all = g.FirstOrDefault(x => x.SeriesName == "All")?.Balance ?? dad + mom;
-            linePoints.Add(new IncomeReplacementLinePointDto(g.Key, dad, mom, all));
+            var salaries = salaryByYear.GetValueOrDefault(g.Key, []);
+            var dadSal = salaries.FirstOrDefault(x => x.Name.Equals("Dad", StringComparison.OrdinalIgnoreCase))?.AnnualSalary ?? 0;
+            var momSal = salaries.FirstOrDefault(x => x.Name.Equals("Mom", StringComparison.OrdinalIgnoreCase))?.AnnualSalary ?? 0;
+            var combinedSal = salaries.Sum(x => x.AnnualSalary);
+            linePoints.Add(new IncomeReplacementLinePointDto(g.Key, dad, mom, all, dadSal, momSal, combinedSal));
         }
 
         return new IncomeReplacementResultDto(
@@ -167,6 +172,11 @@ public class FinancialProjectionService(AppDbContext db) : IFinancialProjectionS
             Math.Round(output.EstimatedTotalRetirementIncome, 2),
             Math.Round(output.ReplacementPercent, 1),
             output.TrafficLight,
+            Math.Round(assumptions.ReplacementRateGreenThresholdPercent, 2),
+            Math.Round(assumptions.ReplacementRateYellowThresholdPercent, 2),
+            Math.Round(assumptions.RetirementRateOfReturnPercent, 2),
+            Math.Round(assumptions.HsaRateOfReturnPercent, 2),
+            Math.Round(assumptions.InflationRatePercent, 2),
             linePoints);
     }
 

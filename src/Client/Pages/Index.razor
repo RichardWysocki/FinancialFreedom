@@ -69,12 +69,12 @@
                             {
                                 var pct = _dashboard.TotalNetWorth > 0 ? (double)(c.Amount / _dashboard.TotalNetWorth * 100m) : 0;
                                 <div>
-                                    <MudText Typo="Typo.body2">@c.CategoryName — @c.Amount.ToString("C")</MudText>
+                                    <MudText Typo="Typo.body2">@c.CategoryName — @UiMoney.Format(c.Amount)</MudText>
                                     <MudProgressLinear Color="MudBlazor.Color.Primary" Rounded="true" Size="Size.Medium" Value="pct" />
                                 </div>
                             }
                             <MudDivider Class="my-2" />
-                            <MudText Typo="Typo.subtitle1"><strong>Total: @_dashboard.TotalNetWorth.ToString("C")</strong></MudText>
+                            <MudText Typo="Typo.subtitle1"><strong>Total: @UiMoney.Format(_dashboard.TotalNetWorth)</strong></MudText>
                         </MudStack>
                     </MudPaper>
                 </MudItem>
@@ -87,7 +87,7 @@
                             {
                                 <tr>
                                     <td>@c.CategoryName</td>
-                                    <td style="text-align: right">@c.Amount.ToString("C")</td>
+                                    <td style="text-align: right">@UiMoney.Format(c.Amount)</td>
                                 </tr>
                             }
                             </tbody>

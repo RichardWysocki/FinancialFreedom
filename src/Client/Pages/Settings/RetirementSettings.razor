@@ -51,7 +51,7 @@
         <MudText Typo="Typo.subtitle1" Class="mt-1">@_editMemberName</MudText>
     </TitleContent>
     <DialogContent>
-        <MudNumericField @bind-Value="_salary" Label="Salary" Format="C2" Culture="@Usd" Class="mb-2 ff-input-select-all" />
+        <MudNumericField @bind-Value="_salary" Label="Salary" Format="C2" Culture="@UiMoney.Usd" Class="mb-2 ff-input-select-all" />
         <MudNumericField @bind-Value="_contributionPct" Label="Contribution %" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2 ff-input-select-all" />
         <MudNumericField @bind-Value="_retirementAge" Label="Retirement age" Step="1" Class="mb-2 ff-input-select-all" />
         <MudNumericField @bind-Value="_raisePct" Label="Estimated raise %" Format="N1" Step="0.1m" Culture="@CultureInfo.InvariantCulture" Class="mb-2 ff-input-select-all" />
@@ -61,7 +61,7 @@
         <MudNumericField @bind-Value="_ssMonthly"
                          Label="Social Security (monthly, today's dollars)"
                          HelperText="Estimate in current purchasing power."
-                         Format="C2" Culture="@Usd" Class="mb-2 ff-input-select-all" />
+                         Format="C2" Culture="@UiMoney.Usd" Class="mb-2 ff-input-select-all" />
         <MudField Label="Future Social Security (monthly, at retirement)" HelperText="@FutureSsHelperText" Variant="Variant.Outlined" Class="mb-2">
             <MudText Typo="Typo.body1">@UsdMoney(FutureSocialSecurityMonthly)</MudText>
         </MudField>

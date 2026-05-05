@@ -288,6 +288,13 @@ a, .btn-link {
     box-sizing: border-box;
 }
 
+/* HSA profile edit: ~50% viewport — wider than default, not full-screen */
+.mud-dialog.ff-hsa-edit-dialog {
+    width: 100%;
+    max-width: min(max(50vw, 18rem), calc(100vw - 2rem));
+    box-sizing: border-box;
+}
+
 /*
   MudPopoverProvider must stack above MudDialog overlays; some browsers/layouts ignore theme z-index alone.
 */
